@@ -738,8 +738,9 @@ function openAdd(){
   ['f-num','f-name','f-order','f-time','f-detail'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('f-status').value=''; styleSel(document.getElementById('f-status'));
-  selProcs={}; selPersons={}; renderProcPicker();
+  selProcs={}; selPersons={};
   openModal('adminModal');
+  renderProcPicker();
 }
 function openEdit(i){
   const r=rows[i];
@@ -753,13 +754,12 @@ function openEdit(i){
   document.getElementById('f-status').value=r.status||'';
   document.getElementById('f-detail').value=r.detail||'';
   styleSel(document.getElementById('f-status'));
-  // restore picker state
   selProcs={};
   (r.process||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(id=>selProcs[id]=true);
   selPersons={};
   (r.persons||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(n=>selPersons[n]=true);
-  renderProcPicker();
   openModal('adminModal');
+  renderProcPicker();
 }
 async function saveAdmin(){
   const name=document.getElementById('f-name').value.trim();
@@ -850,10 +850,10 @@ function toggleProc(id) {
 function renderPersonSelector() {
   const el = document.getElementById('personSelector');
   const activeProcs = PROCESS_DATA.filter(p => selProcs[p.id]);
-  if (!activeProcs.length) { el.innerHTML=''; return; }
 
   let html = '<div style="margin-top:.3rem">';
-  // กลุ่ม process หลัก
+
+  // กลุ่ม process ที่เลือก
   activeProcs.forEach(p => {
     html += `<div class="person-block">
       <div class="person-block-head">
@@ -867,9 +867,10 @@ function renderPersonSelector() {
       </div>
     </div>`;
   });
-  // กลุ่มฟรี
-  html += `<div class="person-block" style="margin-top:.5rem">
-    <div class="person-block-head"><span style="color:var(--text3)">➕ เพิ่มเติม (ไม่บังคับ)</span></div>`;
+
+  // กลุ่มฟรี — แสดงเสมอ
+  html += `<div class="person-block" style="margin-top:${activeProcs.length?'.5rem':'0'}">
+    <div class="person-block-head"><span style="color:var(--text3)">➕ เพิ่มเติม</span></div>`;
   FREE_GROUPS.forEach(g => {
     html += `<div class="free-group-title">${g.name}</div>
       <div class="person-block-body">
@@ -930,14 +931,13 @@ function parseSheetDate(v) {
     const d = new Date(s);
     if (!isNaN(d)) return d.toISOString().split('T')[0];
   }
-  // DD/MM/YYYY หรือ M/D/YYYY
+  // Google Sheets ส่งเป็น M/D/YYYY
   const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if (slash) {
-    const [,a,b,y] = slash;
+    const [,m,d,y] = slash;
     const year = y.length===2 ? '20'+y : y;
-    // Google Sheets ส่งเป็น M/D/YYYY
-    const d = new Date(`${year}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`);
-    if (!isNaN(d)) return d.toISOString().split('T')[0];
+    const dt = new Date(`${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
+    if (!isNaN(dt)) return dt.toISOString().split('T')[0];
   }
   // Date serial number (Google Sheets เก็บเป็นตัวเลข)
   if (/^\d+(\.\d+)?$/.test(s)) {
