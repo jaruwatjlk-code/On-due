@@ -86,7 +86,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .nav-spacer{flex:1}
 .role-badge{padding:.22rem .7rem;border-radius:20px;font-size:.71rem;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em}
 .role-badge.admin{background:rgba(79,124,255,.15);color:var(--accent)}
-.role-badge.operator{background:rgba(34,197,94,.12);color:var(--green)}
+.role-badge.ผู้ใช้งาน{background:rgba(34,197,94,.12);color:var(--green)}
 .nav-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:.27rem .62rem;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .15s}
 .nav-btn:hover{border-color:var(--border2);color:var(--text)}
 
@@ -115,27 +115,24 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 /* CALENDAR */
 .cal-wrap{position:relative}
 .cal-bg{position:fixed;inset:0;z-index:150;display:none}
-.cal-popup{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,.55);padding:1rem 1rem 3.5rem;z-index:151;min-width:560px;display:none;gap:1rem}
+.cal-popup{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,.45);padding:1rem 1rem 0;z-index:151;width:280px;display:none;flex-direction:column;gap:.5rem}
 .cal-popup.open{display:flex}
-.cal-panel{flex:1;min-width:220px}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
-.cal-month-title{font-size:.86rem;font-weight:700}
-.cal-arrow{background:none;border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.cal-month-title{font-size:.88rem;font-weight:700}
+.cal-arrow{background:none;border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .cal-arrow:hover{border-color:var(--border2);color:var(--text)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.cal-dow{font-size:.62rem;font-weight:700;color:var(--text3);text-align:center;padding:.2rem 0;letter-spacing:.04em}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.77rem;border-radius:6px;cursor:pointer;transition:all .12s;user-select:none;color:var(--text2)}
-.cal-day:hover:not(.empty){background:var(--surface2);color:var(--text)}
-.cal-day.empty{cursor:default;opacity:.3}
-.cal-day.other{opacity:.35}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:.25rem}
+.cal-dow{font-size:.62rem;font-weight:700;color:var(--text3);text-align:center;padding:.25rem 0;letter-spacing:.03em}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.78rem;border-radius:6px;cursor:pointer;transition:background .1s,color .1s;user-select:none;color:var(--text2)}
+.cal-day:hover:not(.other){background:var(--surface2);color:var(--text)}
+.cal-day.other{opacity:.3;cursor:default}
 .cal-day.is-today{font-weight:700;color:var(--accent)}
 .cal-day.in-range{background:var(--accent-glow);color:var(--text);border-radius:0}
 .cal-day.range-s{background:var(--accent)!important;color:#fff!important;font-weight:700;border-radius:6px 0 0 6px}
 .cal-day.range-e{background:var(--accent)!important;color:#fff!important;font-weight:700;border-radius:0 6px 6px 0}
 .cal-day.range-s.range-e{border-radius:6px!important}
-.cal-sep{width:1px;background:var(--border);margin:0 .2rem}
-.cal-footer{position:absolute;bottom:0;left:0;right:0;padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:.6rem;background:var(--surface);border-radius:0 0 12px 12px}
-.cal-sel-hint{font-size:.71rem;color:var(--text3);flex:1}
+.cal-footer{padding:.7rem 0;border-top:1px solid var(--border);display:flex;align-items:center;gap:.5rem;margin-top:.25rem}
+.cal-sel-hint{font-size:.7rem;color:var(--text3);flex:1}
 
 /* DATE GROUPS */
 .date-group{margin-bottom:1.8rem}
@@ -177,6 +174,24 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .fselect{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b90a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.9rem}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .ss1{color:var(--green)!important}.ss2{color:var(--orange)!important}.ss3{color:var(--red)!important}.ss4{color:var(--yellow)!important}.ss5{color:var(--purple)!important}
+
+/* PROCESS & PERSON PICKER */
+.proc-picker{display:flex;flex-wrap:wrap;gap:.4rem;padding:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;min-height:42px}
+.proc-chip-btn{display:inline-flex;align-items:center;gap:.28rem;padding:.25rem .6rem;border-radius:6px;font-size:.76rem;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .15s;user-select:none;opacity:.4}
+.proc-chip-btn:hover{opacity:.7}
+.proc-chip-btn.on{opacity:1;box-shadow:0 0 0 2px currentColor}
+.person-block{margin-top:.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.person-block-head{padding:.45rem .7rem;background:var(--surface2);font-size:.72rem;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:.4rem}
+.person-block-body{padding:.5rem .7rem;display:flex;flex-wrap:wrap;gap:.35rem}
+.pname-chip{display:inline-flex;align-items:center;padding:.22rem .55rem;border-radius:20px;font-size:.73rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;user-select:none}
+.pname-chip:hover{border-color:var(--border2);color:var(--text)}
+.pname-chip.on{background:var(--accent-glow);border-color:var(--accent);color:var(--accent);font-weight:700}
+.free-group-title{font-size:.7rem;font-weight:700;color:var(--text3);padding:.5rem .7rem .2rem;background:var(--surface2)}
+
+/* TABLE display chips */
+.pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:700;margin:1px}
+.uchip{display:inline-flex;align-items:center;padding:.14rem .42rem;border-radius:20px;font-size:.69rem;font-weight:500;margin:1px;background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.chips-wrap{display:flex;flex-wrap:wrap;max-width:200px}
 
 /* MISC */
 .op-notice{background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.15);border-radius:8px;padding:.6rem 1rem;font-size:.79rem;color:var(--text2);margin-bottom:1.1rem}
@@ -259,7 +274,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
 
 <!-- ADMIN MODAL -->
 <div class="overlay" id="adminModal">
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:560px">
     <div class="modal-header">
       <div class="modal-title" id="adminTitle">เพิ่มงานใหม่</div>
       <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
@@ -278,12 +293,15 @@ td{padding:.77rem .9rem;vertical-align:middle}
         <div class="fg"><label class="flbl">ชื่องาน <span style="color:var(--red)">*</span></label>
           <input type="text" class="finput" id="f-name" placeholder="STW(123)"/></div>
       </div>
-      <div class="frow">
-        <div class="fg"><label class="flbl">Order</label>
-          <input type="number" class="finput" id="f-order" placeholder="12000"/></div>
-        <div class="fg"><label class="flbl">กระบวนการ</label>
-          <input type="text" class="finput" id="f-process" placeholder="DC+ST+GL"/></div>
+      <div class="fg"><label class="flbl">Order</label>
+        <input type="number" class="finput" id="f-order" placeholder="12000"/></div>
+      <!-- PROCESS PICKER -->
+      <div class="fg">
+        <label class="flbl">กระบวนการ</label>
+        <div class="proc-picker" id="procPicker"></div>
       </div>
+      <!-- PERSON SELECTOR (renders dynamically) -->
+      <div id="personSelector"></div>
       <div class="frow">
         <div class="fg"><label class="flbl">สถานะ</label>
           <select class="fselect" id="f-status" onchange="styleSel(this)">
@@ -306,7 +324,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 </div>
 
-<!-- OPERATOR MODAL -->
+<!-- ผู้ใช้งาน MODAL -->
 <div class="overlay" id="opModal">
   <div class="modal-box" style="max-width:400px">
     <div class="modal-header">
@@ -352,9 +370,9 @@ td{padding:.77rem .9rem;vertical-align:middle}
     <div class="theme-opt active" id="themeLight">☀ สว่าง</div>
     <div class="theme-opt" id="themeDark">🌙 มืด</div>
   </div>
-  <span class="role-badge operator" id="roleBadge">🔧 Operator</span>
+  <span class="role-badge ผู้ใช้งาน" id="roleBadge">🔧 ผู้ใช้งาน</span>
   <button class="nav-btn" id="switchBtn" onclick="reqAdmin()">เปลี่ยนเป็น Admin</button>
-  <button class="nav-btn" id="backBtn" style="display:none" onclick="backToOp()">← กลับ Operator</button>
+  <button class="nav-btn" id="backBtn" style="display:none" onclick="backToOp()">← กลับ ผู้ใช้งาน</button>
 </nav>
 
 <div class="main">
@@ -378,26 +396,12 @@ td{padding:.77rem .9rem;vertical-align:middle}
       <!-- Calendar Popup -->
       <div class="cal-bg" id="calBg" onclick="closeCal()"></div>
       <div class="cal-popup" id="calPopup">
-        <!-- Left month -->
-        <div class="cal-panel">
-          <div class="cal-nav">
-            <button class="cal-arrow" onclick="shiftCal(-1,0)">‹</button>
-            <div class="cal-month-title" id="mTitle0"></div>
-            <button class="cal-arrow" onclick="shiftCal(1,0)">›</button>
-          </div>
-          <div class="cal-grid" id="mGrid0"></div>
+        <div class="cal-nav">
+          <button class="cal-arrow" onclick="shiftCal(-1)">‹</button>
+          <div class="cal-month-title" id="mTitle0"></div>
+          <button class="cal-arrow" onclick="shiftCal(1)">›</button>
         </div>
-        <div class="cal-sep"></div>
-        <!-- Right month -->
-        <div class="cal-panel">
-          <div class="cal-nav">
-            <button class="cal-arrow" onclick="shiftCal(-1,1)">‹</button>
-            <div class="cal-month-title" id="mTitle1"></div>
-            <button class="cal-arrow" onclick="shiftCal(1,1)">›</button>
-          </div>
-          <div class="cal-grid" id="mGrid1"></div>
-        </div>
-        <!-- Footer inside popup -->
+        <div class="cal-grid" id="mGrid0"></div>
         <div class="cal-footer">
           <span class="cal-sel-hint" id="calHint">เลือกวันเริ่มต้น</span>
           <button class="btn btn-secondary btn-sm" onclick="clearRange()">ล้าง</button>
@@ -411,7 +415,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 
   <div class="op-notice" id="opNotice">
-    🔧 <strong>โหมด User ทั่วไป:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
+    🔧 <strong>โหมด ผู้ใช้งาน:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
   </div>
 
   <div id="content">
@@ -434,13 +438,41 @@ function toggleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 // ─── CONFIG ───────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61n5MDBARadvY-whp8ja1hgYCQiekeSARVh9MfYzKaG0oLB3JzSWiprT0b5W1WhiH6Q/exec';
 
+// กระบวนการหลักและผู้รับผิดชอบ
+const PROCESS_DATA = [
+  { id:'PR',      color:'#f97316', bg:'rgba(249,115,22,.15)',  persons:['อุทัย','ตั้ม','อิ','ยู','ตุ๊ก','ณรงค์','สุริยา'] },
+  { id:'SP',      color:'#a855f7', bg:'rgba(168,85,247,.15)',  persons:['ลลิตา','นัท','จ๊ะจ๋า'] },
+  { id:'SG',      color:'#06b6d4', bg:'rgba(6,182,212,.15)',   persons:['แพรวา','โยเซฟ','กบ'] },
+  { id:'Replan',  color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
+  { id:'DC',      color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'ST',      color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'CA',      color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'LA',      color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'GL',      color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
+  { id:'MGL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
+  { id:'DOME',    color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'F3',      color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'PN',      color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
+];
+
+// กลุ่มคนฟรี (เพิ่มได้ทุก process)
+const FREE_GROUPS = [
+  { name:'บริการลูกค้า', persons:['Aom','อ้อ','หงส์','Nancy','Nannie','หมิว','Tui'] },
+  { name:'จัดส่ง',       persons:['กาน','ปุ๊กกี้','ฟงหวิน','เอ'] },
+  { name:'พิเศษ',        persons:['ฉัตชัย','ธานี','ประกอบ','เมธี','จรัญ','พงศกร','ยุ้ย'] },
+];
+
+// picker state
+let selProcs = {};   // { 'PR': true, 'DC': true }
+let selPersons = {}; // { 'อุทัย': true, 'ถาวร': true }
+
 const SL  = ['ส่งครบ','แบ่งส่ง','ส่งไม่ได้','กำลังดำเนินการ','HOLD'];
 const SCLS = {'ส่งครบ':'s1','แบ่งส่ง':'s2','ส่งไม่ได้':'s3','กำลังดำเนินการ':'s4','HOLD':'s5'};
 const SCOL = {'ส่งครบ':'var(--green)','แบ่งส่ง':'var(--orange)','ส่งไม่ได้':'var(--red)','กำลังดำเนินการ':'var(--yellow)','HOLD':'var(--purple)'};
 const SBG  = {'ส่งครบ':'var(--green-bg)','แบ่งส่ง':'var(--orange-bg)','ส่งไม่ได้':'var(--red-bg)','กำลังดำเนินการ':'var(--yellow-bg)','HOLD':'var(--purple-bg)'};
 const SSEL = {'ส่งครบ':'ss1','แบ่งส่ง':'ss2','ส่งไม่ได้':'ss3','กำลังดำเนินการ':'ss4','HOLD':'ss5'};
 
-let role = 'operator';
+let role = 'ผู้ใช้งาน';
 let rows = [];
 let srch = '';
 let fStart = null, fEnd = null;
@@ -464,6 +496,7 @@ async function loadData() {
         time:    parseSheetTime(r[5]),
         status:  (r[6]||'').toString().trim(),
         detail:  (r[7]||'').toString().trim(),
+        persons: (r[8]||'').toString().trim(),
       }));
     }
     document.getElementById('lastSync').textContent =
@@ -534,7 +567,8 @@ function render() {
         <td class="td-num">${esc(r.num)||'—'}</td>
         <td class="td-name">${esc(r.name)}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
-        <td class="td-mono">${esc(r.process)||'—'}</td>
+        <td>${renderProcessChips(r.process)}</td>
+        <td>${renderPersonChips(r.persons)}</td>
         <td class="td-mono">${fmtDMY(r.date)}</td>
         <td class="td-mono">${esc(r.time)||'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
@@ -550,7 +584,7 @@ function render() {
       </div>
       <div class="table-wrap"><div style="overflow-x:auto">
         <table>
-          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
+          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>ผู้รับผิดชอบ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
       </div></div>
@@ -572,50 +606,84 @@ function doSearch(q) { srch=q.toLowerCase(); render(); stats(); }
 // ─── CALENDAR ─────────────────────────────
 const MON_TH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const DOW_TH = ['อา','จ','อ','พ','พฤ','ศ','ส'];
-let calMs = [new Date(), new Date(new Date().getFullYear(), new Date().getMonth()+1,1)];
+let calM = new Date();
 let tmpS=null, tmpE=null;
+let hovDay=null;
 
 function toggleCal() {
   const p=document.getElementById('calPopup'), bg=document.getElementById('calBg');
   if(p.classList.contains('open')){ closeCal(); return; }
-  tmpS=fStart; tmpE=fEnd;
+  tmpS=fStart; tmpE=fEnd; hovDay=null;
   p.classList.add('open'); bg.style.display='block';
-  drawCals(); updateHint();
+  drawCal(); updateHint();
 }
 function closeCal(){
   document.getElementById('calPopup').classList.remove('open');
   document.getElementById('calBg').style.display='none';
 }
-function shiftCal(d,i){ calMs[i]=new Date(calMs[i].getFullYear(), calMs[i].getMonth()+d,1); drawCals(); }
-function drawCals(){ [0,1].forEach(i=>{ document.getElementById(`mTitle${i}`).textContent=`${MON_TH[calMs[i].getMonth()]} ${calMs[i].getFullYear()+543}`; drawGrid(i); }); }
+function shiftCal(d){ calM=new Date(calM.getFullYear(), calM.getMonth()+d, 1); drawCal(); }
+function drawCal(){
+  document.getElementById('mTitle0').textContent=`${MON_TH[calM.getMonth()]} ${calM.getFullYear()+543}`;
+  drawGrid();
+}
 
-function drawGrid(i) {
-  const m=calMs[i], el=document.getElementById(`mGrid${i}`);
+function drawGrid() {
+  const m=calM, el=document.getElementById('mGrid0');
   let h = DOW_TH.map(d=>`<div class="cal-dow">${d}</div>`).join('');
   const first=new Date(m.getFullYear(),m.getMonth(),1).getDay();
   const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
   const prev=new Date(m.getFullYear(),m.getMonth(),0).getDate();
   const todStr=new Date().toISOString().split('T')[0];
-  for(let j=first-1;j>=0;j--){ const ds=dStr(m.getFullYear(),m.getMonth()-1,prev-j); h+=`<div class="cal-day other ${dc(ds)}" onclick="pick('${ds}')">${prev-j}</div>`; }
-  for(let d=1;d<=dim;d++){ const ds=dStr(m.getFullYear(),m.getMonth(),d); h+=`<div class="cal-day ${ds===todStr?'is-today':''} ${dc(ds)}" onclick="pick('${ds}')">${d}</div>`; }
+
+  // prev month padding
+  for(let j=first-1;j>=0;j--){
+    const ds=dStr(m.getFullYear(),m.getMonth()-1,prev-j);
+    h+=`<div class="cal-day other" onclick="pick('${ds}')" onmouseenter="hov('${ds}')" onmouseleave="unhov()">${prev-j}</div>`;
+  }
+  // this month
+  for(let d=1;d<=dim;d++){
+    const ds=dStr(m.getFullYear(),m.getMonth(),d);
+    h+=`<div class="cal-day ${ds===todStr?'is-today':''} ${dc(ds)}" onclick="pick('${ds}')" onmouseenter="hov('${ds}')" onmouseleave="unhov()">${d}</div>`;
+  }
+  // next month padding
   const tot=first+dim; const rem=tot%7===0?0:7-tot%7;
-  for(let d=1;d<=rem;d++){ const ds=dStr(m.getFullYear(),m.getMonth()+1,d); h+=`<div class="cal-day other ${dc(ds)}" onclick="pick('${ds}')">${d}</div>`; }
+  for(let d=1;d<=rem;d++){
+    const ds=dStr(m.getFullYear(),m.getMonth()+1,d);
+    h+=`<div class="cal-day other" onclick="pick('${ds}')" onmouseenter="hov('${ds}')" onmouseleave="unhov()">${d}</div>`;
+  }
   el.innerHTML=h;
 }
 
 function dStr(y,m,d){ return new Date(y,m,d).toISOString().split('T')[0]; }
+
 function dc(ds){
-  if(tmpS&&ds===tmpS&&tmpE&&ds===tmpE) return 'range-s range-e';
-  if(tmpS&&ds===tmpS) return tmpE?'range-s':'range-s range-e';
-  if(tmpE&&ds===tmpE) return 'range-e';
-  if(tmpS&&tmpE&&ds>tmpS&&ds<tmpE) return 'in-range';
+  // ถ้ากำลัง hover อยู่ ให้แสดง preview range
+  const s=tmpS, e=tmpE||(tmpS&&hovDay?hovDay:null);
+  const lo=s&&e?(s<e?s:e):s;
+  const hi=s&&e?(s<e?e:s):s;
+  if(lo&&ds===lo&&hi&&ds===hi) return 'range-s range-e';
+  if(lo&&ds===lo) return 'range-s';
+  if(hi&&ds===hi) return 'range-e';
+  if(lo&&hi&&ds>lo&&ds<hi) return 'in-range';
   return '';
 }
-function pick(ds){
-  if(!tmpS||(tmpS&&tmpE)){ tmpS=ds; tmpE=null; }
-  else { if(ds<tmpS){tmpE=tmpS;tmpS=ds;}else{tmpE=ds;} }
-  updateHint(); drawCals();
+
+function hov(ds){
+  if(tmpS && !tmpE){ hovDay=ds; drawGrid(); }
 }
+function unhov(){ hovDay=null; if(tmpS&&!tmpE) drawGrid(); }
+
+function pick(ds){
+  if(!tmpS || (tmpS && tmpE)){
+    tmpS=ds; tmpE=null; hovDay=null;
+  } else {
+    if(ds<tmpS){ tmpE=tmpS; tmpS=ds; }
+    else { tmpE=ds; }
+    hovDay=null;
+  }
+  updateHint(); drawGrid();
+}
+
 function updateHint(){
   const h=document.getElementById('calHint');
   if(!tmpS) h.textContent='เลือกวันเริ่มต้น';
@@ -626,7 +694,7 @@ function applyRange(){
   fStart=tmpS; fEnd=tmpE||tmpS; closeCal(); updateRangeBtn(); render(); stats();
 }
 function clearRange(){
-  tmpS=null;tmpE=null;fStart=null;fEnd=null; closeCal(); updateRangeBtn(); render(); stats();
+  tmpS=null;tmpE=null;hovDay=null;fStart=null;fEnd=null; closeCal(); updateRangeBtn(); render(); stats();
 }
 function updateRangeBtn(){
   const btn=document.getElementById('rangeBtn'),lbl=document.getElementById('rangeLbl'),clr=document.getElementById('clearRangeBtn');
@@ -651,11 +719,11 @@ function confirmPw(){
   }
 }
 function cancelPw(){ document.getElementById('pwOverlay').classList.remove('open'); }
-function backToOp(){ setRole('operator'); }
+function backToOp(){ setRole('ผู้ใช้งาน'); }
 function setRole(r){
   role=r; const a=r==='admin';
-  document.getElementById('roleBadge').textContent=a?'👑 Admin':'🔧 Operator';
-  document.getElementById('roleBadge').className='role-badge '+(a?'admin':'operator');
+  document.getElementById('roleBadge').textContent=a?'👑 Admin':'🔧 ผู้ใช้งาน';
+  document.getElementById('roleBadge').className='role-badge '+(a?'admin':'ผู้ใช้งาน');
   document.getElementById('addBtn').style.display=a?'inline-flex':'none';
   document.getElementById('switchBtn').style.display=a?'none':'inline-block';
   document.getElementById('backBtn').style.display=a?'inline-block':'none';
@@ -667,9 +735,10 @@ function setRole(r){
 function openAdd(){
   document.getElementById('adminTitle').textContent='+ เพิ่มงานใหม่';
   document.getElementById('editIdx').value='';
-  ['f-num','f-name','f-order','f-process','f-time','f-detail'].forEach(id=>document.getElementById(id).value='');
+  ['f-num','f-name','f-order','f-time','f-detail'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('f-status').value=''; styleSel(document.getElementById('f-status'));
+  selProcs={}; selPersons={}; renderProcPicker();
   openModal('adminModal');
 }
 function openEdit(i){
@@ -680,11 +749,16 @@ function openEdit(i){
   document.getElementById('f-num').value=r.num||'';
   document.getElementById('f-name').value=r.name||'';
   document.getElementById('f-order').value=r.order||'';
-  document.getElementById('f-process').value=r.process||'';
   document.getElementById('f-time').value=r.time||'';
   document.getElementById('f-status').value=r.status||'';
   document.getElementById('f-detail').value=r.detail||'';
   styleSel(document.getElementById('f-status'));
+  // restore picker state
+  selProcs={};
+  (r.process||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(id=>selProcs[id]=true);
+  selPersons={};
+  (r.persons||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(n=>selPersons[n]=true);
+  renderProcPicker();
   openModal('adminModal');
 }
 async function saveAdmin(){
@@ -692,12 +766,15 @@ async function saveAdmin(){
   const date=document.getElementById('f-date').value;
   if(!name){ toast('⚠ กรุณากรอกชื่องาน','error'); return; }
   if(!date){ toast('⚠ กรุณาเลือกวันที่','error'); return; }
+  const processStr = Object.keys(selProcs).filter(k=>selProcs[k]).join(',');
+  const personsStr = Object.keys(selPersons).filter(k=>selPersons[k]).join(',');
   const d={date,num:document.getElementById('f-num').value.trim(),name,
     order:document.getElementById('f-order').value.trim(),
-    process:document.getElementById('f-process').value.trim(),
+    process:processStr,
     time:document.getElementById('f-time').value.trim(),
     status:document.getElementById('f-status').value,
-    detail:document.getElementById('f-detail').value.trim()};
+    detail:document.getElementById('f-detail').value.trim(),
+    persons:personsStr};
   const idx=document.getElementById('editIdx').value;
   const btn=document.getElementById('adminSaveBtn');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
@@ -713,7 +790,7 @@ async function delRow(i){
   toast('🗑 ลบแล้ว','success');
 }
 
-// ─── OPERATOR ─────────────────────────────
+// ─── ผู้ใช้งาน ─────────────────────────────
 function openOp(i){
   const r=rows[i];
   document.getElementById('op-idx').value=i;
@@ -748,6 +825,90 @@ function styleSel(s){
   if(r&&SSEL[r]) s.classList.add(SSEL[r]);
 }
 function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── PROCESS PICKER ───────────────────────
+function renderProcPicker() {
+  const el = document.getElementById('procPicker');
+  el.innerHTML = PROCESS_DATA.map(p =>
+    `<span class="proc-chip-btn ${selProcs[p.id]?'on':''}"
+      style="background:${p.bg};color:${p.color};border-color:${selProcs[p.id]?p.color:'transparent'}"
+      onclick="toggleProc('${p.id}')">${p.id}</span>`
+  ).join('');
+  renderPersonSelector();
+}
+
+function toggleProc(id) {
+  selProcs[id] = !selProcs[id];
+  // ถ้า uncheck ให้ deselect คนใน process นั้นด้วย
+  if (!selProcs[id]) {
+    const pd = PROCESS_DATA.find(p=>p.id===id);
+    if (pd) pd.persons.forEach(n => { delete selPersons[n]; });
+  }
+  renderProcPicker();
+}
+
+function renderPersonSelector() {
+  const el = document.getElementById('personSelector');
+  const activeProcs = PROCESS_DATA.filter(p => selProcs[p.id]);
+  if (!activeProcs.length) { el.innerHTML=''; return; }
+
+  let html = '<div style="margin-top:.3rem">';
+  // กลุ่ม process หลัก
+  activeProcs.forEach(p => {
+    html += `<div class="person-block">
+      <div class="person-block-head">
+        <span style="background:${p.bg};color:${p.color};padding:.1rem .45rem;border-radius:5px;font-weight:700">${p.id}</span>
+        <span style="color:var(--text3);font-weight:400">ผู้รับผิดชอบ</span>
+      </div>
+      <div class="person-block-body">
+        ${p.persons.map(n =>
+          `<span class="pname-chip ${selPersons[n]?'on':''}" onclick="togglePerson('${n}')">${n}</span>`
+        ).join('')}
+      </div>
+    </div>`;
+  });
+  // กลุ่มฟรี
+  html += `<div class="person-block" style="margin-top:.5rem">
+    <div class="person-block-head"><span style="color:var(--text3)">➕ เพิ่มเติม (ไม่บังคับ)</span></div>`;
+  FREE_GROUPS.forEach(g => {
+    html += `<div class="free-group-title">${g.name}</div>
+      <div class="person-block-body">
+        ${g.persons.map(n =>
+          `<span class="pname-chip ${selPersons[n]?'on':''}" onclick="togglePerson('${n}')">${n}</span>`
+        ).join('')}
+      </div>`;
+  });
+  html += '</div></div>';
+  el.innerHTML = html;
+}
+
+function togglePerson(name) {
+  selPersons[name] = !selPersons[name];
+  if (!selPersons[name]) delete selPersons[name];
+  renderPersonSelector();
+}
+
+// ─── TABLE CHIP RENDERS ───────────────────
+function renderProcessChips(processStr) {
+  if (!processStr) return '<span style="color:var(--text3)">—</span>';
+  const ids = processStr.split(',').map(s=>s.trim()).filter(Boolean);
+  if (!ids.length) return '<span style="color:var(--text3)">—</span>';
+  return '<div class="chips-wrap">' + ids.map(id => {
+    const pd = PROCESS_DATA.find(p=>p.id===id);
+    const col = pd ? pd.color : 'var(--text2)';
+    const bg  = pd ? pd.bg    : 'var(--surface2)';
+    return `<span class="pchip" style="background:${bg};color:${col}">${esc(id)}</span>`;
+  }).join('') + '</div>';
+}
+
+function renderPersonChips(personsStr) {
+  if (!personsStr) return '<span style="color:var(--text3)">—</span>';
+  const names = personsStr.split(',').map(s=>s.trim()).filter(Boolean);
+  if (!names.length) return '<span style="color:var(--text3)">—</span>';
+  return '<div class="chips-wrap">' + names.map(n =>
+    `<span class="uchip">${esc(n)}</span>`
+  ).join('') + '</div>';
+}
 
 // แสดงวันที่แบบ d/M/YY (ค.ศ.)
 function fmtDMY(ds) {
