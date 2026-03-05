@@ -78,10 +78,9 @@
 .theme-opt{padding:.2rem .55rem;border-radius:16px;font-size:.72rem;font-weight:600;transition:all .2s;color:var(--text3);white-space:nowrap;user-select:none}
 .theme-opt.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(79,124,255,.35)}
 
-/* GLOBAL TRANSITION FOR SMOOTH THEME SWITCH */
-*,*::before,*::after{transition:background-color .2s,border-color .2s,color .2s,box-shadow .2s}
-/* но не анимации */
-.spinner,*[class*="anim"],.nav-dot{transition:none!important}
+/* GLOBAL TRANSITION — เฉพาะ theme switch เท่านั้น ไม่ให้ทุก element ช้า */
+body,body *{transition:background-color .18s,border-color .18s,color .18s}
+.spinner,.nav-dot,[class*="anim"],.kpi-bar-fill,.kpi-trend-bar,.bar-fill{transition:none!important}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
 
@@ -221,8 +220,8 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .hamburger{display:flex;flex-direction:column;justify-content:center;gap:4px;width:28px;height:28px;cursor:pointer;padding:2px;border-radius:6px;transition:background .15s;position:relative}
 .hamburger:hover{background:var(--surface2)}
 .hamburger span{display:block;height:2px;background:var(--text2);border-radius:2px;transition:all .2s}
-.ham-menu{display:none;position:absolute;top:calc(100% + 8px);right:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px var(--shadow);z-index:400;min-width:180px;padding:.4rem}
-.ham-menu.open{display:block}
+.ham-menu{position:absolute;top:calc(100% + 8px);right:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px var(--shadow);z-index:400;min-width:180px;padding:.4rem;display:block;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:opacity .15s ease,transform .15s cubic-bezier(.34,1.2,.64,1)}
+.ham-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
 .ham-item{display:flex;align-items:center;gap:.5rem;width:100%;padding:.6rem .9rem;border:none;background:none;color:var(--text2);font-family:inherit;font-size:.84rem;cursor:pointer;border-radius:7px;text-align:left;transition:all .15s}
 .ham-item:hover{background:var(--surface2);color:var(--text)}
 .ham-item.active{color:var(--accent);font-weight:600;background:var(--accent-glow)}
@@ -271,7 +270,51 @@ td{padding:.77rem .9rem;vertical-align:middle}
 [data-theme="light"] .uchip{filter:saturate(1.6) brightness(.82)}
 .chips-wrap{display:flex;flex-wrap:wrap;max-width:200px}
 
-/* MISC */
+/* SKELETON LOADING */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{border-radius:4px;background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:800px 100%;animation:shimmer 1.2s infinite linear}
+
+/* FADE-IN for content */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.date-group{animation:fadeUp .22s ease both}
+.date-group:nth-child(2){animation-delay:.04s}
+.date-group:nth-child(3){animation-delay:.08s}
+.date-group:nth-child(4){animation-delay:.12s}
+.date-group:nth-child(n+5){animation-delay:.15s}
+
+/* KPI cards stagger */
+@keyframes fadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.kpi-card{animation:fadeIn .2s ease both}
+.kpi-card:nth-child(2){animation-delay:.04s}
+.kpi-card:nth-child(3){animation-delay:.08s}
+.kpi-card:nth-child(4){animation-delay:.12s}
+.kpi-card:nth-child(5){animation-delay:.15s}
+.kpi-card:nth-child(6){animation-delay:.18s}
+
+/* MODAL spring */
+.overlay{transition:opacity .18s cubic-bezier(.4,0,.2,1)}
+.modal-box{transition:transform .22s cubic-bezier(.34,1.4,.64,1),opacity .18s ease}
+.overlay:not(.open) .modal-box{transform:translateY(16px) scale(.98);opacity:0}
+.overlay.open .modal-box{transform:translateY(0) scale(1);opacity:1}
+
+/* TABLE ROW — faster hover, tap feedback */
+tbody tr{transition:background .08s}
+tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
+
+/* TOAST spring */
+.toast{transition:transform .2s cubic-bezier(.34,1.3,.64,1),opacity .18s ease}
+
+/* TOP PROGRESS BAR — ตอนโหลด */
+#topProgress{position:fixed;top:0;left:0;height:2.5px;background:var(--accent);z-index:9999;border-radius:0 2px 2px 0;transition:width .3s ease,opacity .3s ease;box-shadow:0 0 8px var(--accent);pointer-events:none}
+
+/* LOADING SKELETON TABLE */
+.skel-table{width:100%;border-collapse:collapse}
+.skel-row td{padding:.82rem .9rem;border-bottom:1px solid var(--border)}
+.skel-cell{height:14px;border-radius:4px}
+
+/* BUTTON press */
+.btn{transition:background .1s,border-color .1s,transform .08s,opacity .1s}
+.btn:active{transform:scale(.95);opacity:.85}
 .op-notice{background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.15);border-radius:8px;padding:.6rem 1rem;font-size:.79rem;color:var(--text2);margin-bottom:1.1rem}
 .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--text3)}
 .empty-icon{font-size:2rem;margin-bottom:.5rem}
@@ -586,6 +629,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 </div>
 
+<div id="topProgress" style="width:0;opacity:0"></div>
 <div class="toast" id="toast"></div>
 
 <!-- SIDE MENU -->
@@ -768,9 +812,52 @@ let fStart = null, fEnd = null;
 // ─── INIT ─────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => { applyTheme(currentTheme); loadData(); });
 
+// ─── TOP PROGRESS BAR ─────────────────────
+let progT;
+function startProgress(){
+  const el=document.getElementById('topProgress');
+  el.style.transition='width .3s ease,opacity .2s';
+  el.style.opacity='1'; el.style.width='0';
+  clearTimeout(progT);
+  setTimeout(()=>{ el.style.width='40%'; },20);
+  setTimeout(()=>{ el.style.width='70%'; },300);
+  setTimeout(()=>{ el.style.width='85%'; },800);
+}
+function endProgress(){
+  const el=document.getElementById('topProgress');
+  el.style.transition='width .2s ease,opacity .4s .15s';
+  el.style.width='100%';
+  progT=setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.style.width='0',400); },200);
+}
+
+// ─── SKELETON TABLE ───────────────────────
+function showSkeleton(){
+  const el=document.getElementById('content');
+  const rows3=Array(6).fill(0).map((_,i)=>`<tr class="skel-row">
+    <td><div class="skel-cell skeleton" style="width:${18+i%3*8}px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:${60+i%4*18}px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:${70+i%3*15}px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:${40+i%2*20}px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:${50+i%3*12}px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:48px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:35px"></div></td>
+    <td><div class="skel-cell skeleton" style="width:60px;border-radius:20px"></div></td>
+  </tr>`).join('');
+  el.innerHTML=`<div class="date-group">
+    <div class="dg-header">
+      <div class="dg-label"><div class="skeleton" style="width:120px;height:13px;border-radius:4px"></div></div>
+      <div class="dg-line"></div>
+    </div>
+    <div class="table-wrap"><div style="overflow-x:auto">
+      <table class="skel-table"><tbody>${rows3}</tbody></table>
+    </div></div>
+  </div>`;
+}
+
 // ─── LOAD FROM SHEET ──────────────────────
 async function loadData() {
-  showLoad(true);
+  startProgress();
+  showSkeleton();
   try {
     const res  = await fetch(SCRIPT_URL + '?action=get');
     const json = await res.json();
@@ -789,16 +876,16 @@ async function loadData() {
     }
     document.getElementById('lastSync').textContent =
       'ซิงค์ล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-    toast('✅ โหลดข้อมูลแล้ว ('+ rows.length +' รายการ)', 'success');
+    toast('✅ โหลดแล้ว '+ rows.length +' รายการ', 'success');
   } catch(e) {
     toast('⚠ ไม่สามารถโหลดจาก Google Sheets', 'error');
     document.getElementById('lastSync').textContent = 'โหลดไม่สำเร็จ';
   }
-  showLoad(false);
+  endProgress();
   render(); stats();
 }
 
-function showLoad(v) { document.getElementById('loadBar').style.display = v?'block':'none'; }
+function showLoad(v) { /* deprecated — ใช้ startProgress แทน */ }
 
 // ─── PUSH TO SHEET ────────────────────────
 async function pushSheet(action, data, idx) {
@@ -1079,10 +1166,193 @@ function setRole(r){
   document.getElementById('roleBadge').textContent=a?'👑 Admin':'🔧 ผู้ใช้งาน';
   document.getElementById('roleBadge').className='role-badge '+(a?'admin':'operator');
   document.getElementById('addBtn').style.display=a?'inline-flex':'none';
-  document.getElementById('switchBtn').style.display=a?'none':'inline-block';
-  document.getElementById('backBtn').style.display=a?'inline-block':'none';
+  document.getElementById('sideSwitch').style.display=a?'none':'flex';
+  document.getElementById('sideBack').style.display=a?'flex':'none';
+  document.getElementById('sideRole').textContent=a?'👑 Admin':'🔧 ผู้ใช้งาน';
   document.getElementById('opNotice').style.display=a?'none':'block';
   render();
+}
+
+// ─── PAGE NAVIGATION ──────────────────────
+let currentPage = 'jobs';
+function showPage(p) {
+  currentPage = p;
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.side-item[id^="side-"]').forEach(el=>el.classList.remove('active'));
+  document.getElementById('side-'+p).classList.add('active');
+  closeSideMenu();
+  if(p==='kpi') renderKpi('all');
+}
+function toggleSideMenu(){
+  document.getElementById('sideMenu').classList.toggle('open');
+  document.getElementById('sideBg').classList.toggle('open');
+}
+function closeSideMenu(){
+  document.getElementById('sideMenu').classList.remove('open');
+  document.getElementById('sideBg').classList.remove('open');
+}
+
+// ─── KPI ──────────────────────────────────
+let kpiView = 'all';
+function setKpiView(v, btn) {
+  kpiView = v;
+  document.querySelectorAll('.kpi-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKpi(v);
+}
+
+function filterKpiRows(v) {
+  const today = todayStr();
+  const p = parseDateParts(today);
+  return rows.filter(r => {
+    if(!r.date) return v==='all';
+    if(v==='all') return true;
+    if(v==='today') return r.date===today;
+    if(v==='week'){
+      const wk = new Date(p.y,p.m,p.d); wk.setDate(wk.getDate()-6);
+      const wkStr = `${wk.getFullYear()}-${String(wk.getMonth()+1).padStart(2,'0')}-${String(wk.getDate()).padStart(2,'0')}`;
+      return r.date>=wkStr && r.date<=today;
+    }
+    if(v==='month') return r.date.startsWith(`${p.y}-${String(p.m+1).padStart(2,'0')}`);
+    return true;
+  });
+}
+
+function renderKpi(v) {
+  const data = filterKpiRows(v);
+  const total = data.length;
+  if(!total){ document.getElementById('kpiContent').innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>'; return; }
+
+  const cnt = {}; SL.forEach(s=>cnt[s]=0);
+  data.forEach(r=>{ if(cnt[r.status]!==undefined) cnt[r.status]++; });
+  cnt['Replan'] = data.filter(r=>(r.process||'').includes('Replan')).length;
+
+  const success = cnt['ส่งครบ'];
+  const partial = cnt['แบ่งส่ง'];
+  const fail    = cnt['ส่งไม่ได้'];
+  const inprog  = cnt['กำลังดำเนินการ'];
+  const hold    = cnt['HOLD'];
+  const done    = success + partial;
+  const rate    = total>0 ? Math.round(done/total*100) : 0;
+  const successRate = total>0 ? Math.round(success/total*100) : 0;
+
+  // Status colors for bar
+  const SC = {
+    'ส่งครบ':     {color:'var(--green)',   bg:'var(--green-bg)'},
+    'แบ่งส่ง':    {color:'var(--orange)',  bg:'var(--orange-bg)'},
+    'ส่งไม่ได้':  {color:'var(--red)',     bg:'var(--red-bg)'},
+    'กำลังดำเนินการ':{color:'var(--yellow)', bg:'var(--yellow-bg)'},
+    'HOLD':       {color:'var(--purple)',  bg:'var(--purple-bg)'},
+  };
+
+  // Daily trend (last 14 days)
+  const trendDays = 14;
+  const trendData = [];
+  const today = todayStr(); const tp = parseDateParts(today);
+  for(let i=trendDays-1;i>=0;i--){
+    const d=new Date(tp.y,tp.m,tp.d-i);
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dayRows=rows.filter(r=>r.date===ds);
+    const dayDone=dayRows.filter(r=>r.status==='ส่งครบ'||r.status==='แบ่งส่ง').length;
+    trendData.push({ds,total:dayRows.length,done:dayDone,label:`${d.getDate()}/${d.getMonth()+1}`});
+  }
+  const maxTrend = Math.max(...trendData.map(d=>d.total),1);
+
+  // Process breakdown
+  const procCnt = {};
+  rows.forEach(r=>{
+    (r.process||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(pid=>{
+      procCnt[pid]=(procCnt[pid]||0)+1;
+    });
+  });
+  const topProcs = Object.entries(procCnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxProc = Math.max(...topProcs.map(p=>p[1]),1);
+
+  document.getElementById('kpiContent').innerHTML = `
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">งานทั้งหมด</div>
+      <div class="kpi-value">${total}</div>
+      <div class="kpi-sub">รายการในช่วงที่เลือก</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--green)">
+      <div class="kpi-label">ส่งสำเร็จ</div>
+      <div class="kpi-value kpi-rate" style="color:var(--green)">${successRate}%</div>
+      <div class="kpi-sub">ส่งครบ ${success} รายการ</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--orange)">
+      <div class="kpi-label">อัตราส่งได้ (รวมบางส่วน)</div>
+      <div class="kpi-value kpi-rate" style="color:var(--orange)">${rate}%</div>
+      <div class="kpi-sub">ครบ+บางส่วน ${done} รายการ</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--yellow)">
+      <div class="kpi-label">กำลังดำเนินการ</div>
+      <div class="kpi-value" style="color:var(--yellow)">${inprog}</div>
+      <div class="kpi-sub">ต้องติดตาม</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--purple)">
+      <div class="kpi-label">HOLD</div>
+      <div class="kpi-value" style="color:var(--purple)">${hold}</div>
+      <div class="kpi-sub">รอดำเนินการ</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--red)">
+      <div class="kpi-label">ส่งไม่ได้</div>
+      <div class="kpi-value" style="color:var(--red)">${fail}</div>
+      <div class="kpi-sub">ต้องแก้ไข</div>
+    </div>
+  </div>
+
+  <!-- Stacked Status Bar -->
+  <div class="chart-wrap">
+    <div class="chart-title">สัดส่วนสถานะทั้งหมด</div>
+    <div class="seg-bar">${['กำลังดำเนินการ','HOLD','แบ่งส่ง','ส่งไม่ได้','ส่งครบ'].map(s=>{
+      const pct=total>0?Math.round(cnt[s]/total*100):0;
+      return pct>0?`<div class="seg-piece" style="width:${pct}%;background:${SC[s]?.color||'var(--text3)'};opacity:.85" title="${s}: ${cnt[s]} (${pct}%)"></div>`:'';
+    }).join('')}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin-top:.5rem">
+      ${['กำลังดำเนินการ','HOLD','แบ่งส่ง','ส่งไม่ได้','ส่งครบ'].map(s=>`
+        <span style="font-size:.72rem;color:var(--text2);display:flex;align-items:center;gap:.3rem">
+          <span style="width:10px;height:10px;border-radius:2px;background:${SC[s]?.color};display:inline-block"></span>
+          ${s} <strong style="color:var(--text)">${cnt[s]}</strong>
+        </span>`).join('')}
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="chart-wrap">
+    <div class="chart-title">แนวโน้ม 14 วันล่าสุด <span style="font-size:.68rem;color:var(--text3);font-weight:400">(แท่งเต็ม = งานทั้งหมด · สีเข้ม = ส่งได้)</span></div>
+    <div class="trend-grid">
+      ${trendData.map(d=>{
+        const h=d.total>0?Math.max(Math.round(d.total/maxTrend*72),4):3;
+        const doneH=d.total>0?Math.round(d.done/d.total*h):0;
+        return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:80px;gap:0">
+          <div style="width:100%;height:${h-doneH}px;background:var(--surface2);border-radius:3px 3px 0 0;min-height:${d.total>0?2:0}px" title="${d.label}: ${d.total} งาน"></div>
+          <div style="width:100%;height:${doneH}px;background:var(--green);border-radius:${doneH===h?'3px 3px':0} 0 0;opacity:.85" title="ส่งได้ ${d.done}"></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="trend-labels">${trendData.map(d=>`<div class="trend-lbl">${d.label}</div>`).join('')}</div>
+  </div>
+
+  <!-- Process Breakdown -->
+  <div class="chart-wrap">
+    <div class="chart-title">งานตาม Process (ทุก record)</div>
+    <div class="bar-chart">
+      ${topProcs.map(([id,n])=>{
+        const pd=PROCESS_DATA.find(p=>p.id===id);
+        const col=pd?pd.color:'var(--accent)';
+        const pct=Math.round(n/maxProc*100);
+        return `<div class="bar-row">
+          <span style="font-size:.73rem;font-weight:700;color:${col}">${id}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col};opacity:.8"></div></div>
+          <div class="bar-label" style="color:${col}">${n}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+  `;
 }
 
 // ─── ADMIN ADD/EDIT ───────────────────────
