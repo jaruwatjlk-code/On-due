@@ -138,8 +138,28 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .page-header{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
 .page-title{font-size:1.15rem;font-weight:700}
 .page-sub{font-size:.76rem;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:.15rem}
-.stats-row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.25rem}
-.stat-chip{padding:.22rem .6rem;border-radius:20px;font-size:.71rem;font-weight:600;border:1px solid}
+.stats-row{display:flex;gap:.45rem;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-top:.25rem;padding-bottom:2px}
+.stats-row::-webkit-scrollbar{display:none}
+.stat-chip{padding:.22rem .6rem;border-radius:20px;font-size:.71rem;font-weight:600;border:1px solid;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:transform .1s,box-shadow .1s,opacity .1s;user-select:none}
+.stat-chip:active{transform:scale(.93)}
+.stat-chip.active-filter{box-shadow:0 0 0 2.5px currentColor;opacity:1}
+.stat-chip.dimmed{opacity:.35}
+
+/* STATUS FILTER BAR */
+.status-filter-bar{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:.9rem;padding-bottom:2px}
+.status-filter-bar::-webkit-scrollbar{display:none}
+.sf-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;border:1.5px solid var(--border);color:var(--text3);background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;user-select:none}
+.sf-chip:hover{border-color:var(--border2);color:var(--text)}
+.sf-chip.on{color:#fff!important;border-color:transparent!important}
+.sf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* NAV BADGE */
+.pending-badge{display:none;position:absolute;top:-4px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;font-size:.6rem;font-weight:800;background:var(--red);color:#fff;align-items:center;justify-content:center;line-height:1;border:2px solid var(--surface)}
+.pending-badge.show{display:inline-flex}
+.nav-logo{position:relative}
+
+/* CHEVRON visual cue on rows */
+.td-cue{width:18px;color:var(--text3);font-size:.7rem;text-align:right;padding-right:.5rem!important}
 
 /* FILTER BAR */
 .filter-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.3rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem}
@@ -387,17 +407,16 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
   /* CALENDAR */
   .cal-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:calc(100vw - 2rem);max-width:320px}
 
-  /* TABLE — แสดง 5 คอลัมน์: # | ชื่องาน | กระบวนการ | ผู้รับผิดชอบ | สถานะ */
+  /* TABLE — แสดง: ลำดับ | ชื่องาน | กระบวนการ | ผู้รับผิดชอบ | สถานะ | › */
   .table-wrap{overflow-x:hidden}
   table{font-size:.78rem;width:100%}
   thead th{padding:.45rem .5rem;font-size:.62rem}
   tbody td{padding:.55rem .5rem}
 
-  /* col: 1=# 2=ลำดับ 3=ชื่องาน 4=Order 5=กระบวนการ 6=วันที่นัด 7=เวลานัด 8=สถานะ 9=ผู้รับผิดชอบ */
-  th:nth-child(2),td:nth-child(2),
-  th:nth-child(4),td:nth-child(4),
-  th:nth-child(6),td:nth-child(6),
-  th:nth-child(7),td:nth-child(7){display:none}
+  /* col: 1=ลำดับ 2=ชื่องาน 3=Order 4=กระบวนการ 5=วันที่นัด 6=เวลานัด 7=สถานะ 8=ผู้รับผิดชอบ 9=› */
+  th:nth-child(3),td:nth-child(3),
+  th:nth-child(5),td:nth-child(5),
+  th:nth-child(6),td:nth-child(6){display:none}
 
   /* แถวกดได้ — บอก user ด้วย highlight */
   tbody tr{cursor:pointer;-webkit-tap-highlight-color:rgba(79,124,255,.15)}
@@ -595,7 +614,7 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
 <!-- NAV -->
 <nav class="topnav">
   <button class="ham-btn" onclick="toggleSideMenu()"><span></span><span></span><span></span></button>
-  <div class="nav-logo"><div class="nav-dot"></div>สถานะงานนัด</div>
+  <div class="nav-logo"><div class="nav-dot"></div>สถานะงานนัด<span class="pending-badge" id="pendingBadge"></span></div>
   <div class="nav-spacer"></div>
   <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄</button>
   <button class="btn btn-primary btn-sm" id="addBtn" style="display:none" onclick="openAdd()">+ เพิ่มงาน</button>
@@ -650,6 +669,9 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
   <div class="op-notice" id="opNotice">
     🔧 <strong>โหมด ผู้ใช้งาน:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
   </div>
+
+  <!-- STATUS FILTER -->
+  <div class="status-filter-bar" id="statusFilterBar"></div>
 
   <div id="content">
     <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">กำลังโหลดข้อมูลจาก Google Sheets...</div></div>
@@ -875,10 +897,17 @@ async function pushSheet(action, data, idx) {
 }
 
 // ─── RENDER ───────────────────────────────
+let fStatus = null;
+function toggleStatusFilter(s) {
+  fStatus = (fStatus===s) ? null : s;
+  render(); stats();
+}
+
 function filtered() {
   return rows.filter(r => {
     if (fStart && r.date && r.date < fStart) return false;
     if (fEnd   && r.date && r.date > fEnd)   return false;
+    if (fStatus && r.status !== fStatus) return false;
     if (srch) {
       const q = srch;
       return (r.name||'').toLowerCase().includes(q) ||
@@ -916,21 +945,17 @@ function render() {
   const keys  = Object.keys(grps).sort((a,b) => {
     if(a==='ไม่ระบุวันที่') return 1; if(b==='ไม่ระบุวันที่') return -1; return a<b?-1:1;
   });
-  let rowNum = 0;
   el.innerHTML = keys.map(dk => {
     const gRows = grps[dk];
     const isToday = dk===today;
-    // sort by status within each date group
     const sorted = [...gRows].sort((a,b)=>statusRank(a.status)-statusRank(b.status));
     const rowsHTML = sorted.map(r => {
-      rowNum++;
       const gi = rows.indexOf(r);
       const cls = SCLS[r.status]||'';
       const lbl = SL.find(s=>(r.status||'').includes(s))||r.status||'—';
       const locked = isLocked(dk) && role!=='admin';
       return `<tr onclick="openRowDetail(${gi},event)" style="cursor:pointer" ${locked&&role!=='admin'?'data-locked="1"':''}>
-        <td class="td-num">${rowNum}</td>
-        <td class="td-num" style="color:var(--text3)">${esc(r.num)||'—'}</td>
+        <td class="td-num">${esc(r.num)||'—'}</td>
         <td class="td-name">${esc(r.name)}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
         <td>${renderProcessChips(r.process)}</td>
@@ -938,6 +963,7 @@ function render() {
         <td class="td-mono">${esc(r.time)||'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
         <td>${renderPersonChips(r.persons)}</td>
+        <td class="td-cue">›</td>
       </tr>`;
     }).join('');
     return `<div class="date-group">
@@ -948,7 +974,7 @@ function render() {
       </div>
       <div class="table-wrap"><div style="overflow-x:auto">
         <table>
-          <thead><tr><th>#</th><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th></tr></thead>
+          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th></th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
       </div></div>
@@ -960,10 +986,37 @@ function stats() {
   const data = filtered();
   const cnt = {}; SL.forEach(s=>cnt[s]=0);
   data.forEach(r=>{if(cnt[r.status]!==undefined)cnt[r.status]++;});
+
+  // Stats chips — clickable, highlight active
   document.getElementById('statsRow').innerHTML = SL.map(s =>
-    `<span class="stat-chip" style="background:${SBG[s]};color:${SCOL[s]};border-color:${SCOL[s]}33">${s}: ${cnt[s]}</span>`
+    `<span class="stat-chip${fStatus===s?' active-filter':fStatus?' dimmed':''}"
+      style="background:${SBG[s]};color:${SCOL[s]};border-color:${SCOL[s]}33"
+      onclick="toggleStatusFilter('${s}')">${s}: ${cnt[s]}</span>`
   ).join('');
+
+  // Status filter bar (all statuses as filter chips)
+  const allCnt = {}; SL.forEach(s=>allCnt[s]=0);
+  rows.forEach(r=>{if(allCnt[r.status]!==undefined)allCnt[r.status]++;});
+  const statusColors = {'ส่งครบ':['var(--green)','var(--green-bg)'],'แบ่งส่ง':['var(--orange)','var(--orange-bg)'],'ส่งไม่ได้':['var(--red)','var(--red-bg)'],'กำลังดำเนินการ':['var(--yellow)','var(--yellow-bg)'],'HOLD':['var(--purple)','var(--purple-bg)']};
+  document.getElementById('statusFilterBar').innerHTML =
+    `<span class="sf-chip${!fStatus?' on':''}" style="${!fStatus?'background:var(--accent)':''}" onclick="toggleStatusFilter(null)">ทั้งหมด</span>` +
+    SL.map(s => {
+      const [col,bg] = statusColors[s]||['var(--text2)','var(--surface2)'];
+      const on = fStatus===s;
+      return `<span class="sf-chip${on?' on':''}" style="${on?`background:${col};`:`color:${col};border-color:${col}44`}" onclick="toggleStatusFilter('${s}')">
+        <span class="sf-dot" style="background:${col}"></span>${s} <span style="opacity:.7">${allCnt[s]}</span>
+      </span>`;
+    }).join('');
+
+  // Pending badge — งานที่ยังไม่ส่งครบ
+  const pending = rows.filter(r=>r.status&&r.status!=='ส่งครบ').length;
+  const badge = document.getElementById('pendingBadge');
+  if(pending>0){ badge.textContent=pending>99?'99+':pending; badge.classList.add('show'); }
+  else { badge.classList.remove('show'); }
 }
+
+// ─── STATUS FILTER ────────────────────────
+
 
 function doSearch(q) { srch=q.toLowerCase(); render(); stats(); }
 
@@ -1564,16 +1617,21 @@ function renderProcessChips(processStr) {
   }).join('') + '</div>';
 }
 
-function renderPersonChips(personsStr) {
+function renderPersonChips(personsStr, maxShow=2) {
   if (!personsStr) return '<span style="color:var(--text3)">—</span>';
   const names = personsStr.split(',').map(s=>s.trim()).filter(Boolean);
   if (!names.length) return '<span style="color:var(--text3)">—</span>';
-  return '<div class="chips-wrap">' + names.map(n => {
-    if (n === 'ALL') return `<span class="uchip" style="background:rgba(255,255,255,.1);border-color:var(--border2);color:var(--text);font-weight:700">ALL</span>`;
+  const show = names.slice(0, maxShow);
+  const rest = names.length - maxShow;
+  let html = '<div class="chips-wrap">';
+  show.forEach(n => {
+    if (n === 'ALL') { html+=`<span class="uchip" style="background:rgba(255,255,255,.1);border-color:var(--border2);color:var(--text);font-weight:700">ALL</span>`; return; }
     const col = PERSON_COLORS[n] || 'var(--text2)';
     const bg  = hexToRgba2(col, .13);
-    return `<span class="uchip" style="background:${bg};border-color:${col}55;color:${col};font-weight:600">${esc(n)}</span>`;
-  }).join('') + '</div>';
+    html+=`<span class="uchip" style="background:${bg};border-color:${col}55;color:${col};font-weight:600">${esc(n)}</span>`;
+  });
+  if (rest > 0) html+=`<span class="uchip" style="background:var(--surface2);border-color:var(--border2);color:var(--text2)">+${rest}</span>`;
+  return html + '</div>';
 }
 
 function hexToRgba2(hex, a) {
@@ -1691,4 +1749,4 @@ function toast(msg,type='success'){
 });
 </script>
 </body>
-          </html>
+  </html>
