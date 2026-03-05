@@ -860,20 +860,25 @@ function showSkeleton(){
 
 // ─── LOAD FROM SHEET ──────────────────────
 async function loadData() {
+  console.log('[loadData] start');
   startProgress();
-  // skeleton แสดงแล้วจาก init หรือเรียกใหม่ถ้ากด refresh
-  if(rows.length===0) showSkeleton();
+  showSkeleton();
 
-  // fetch พร้อม timeout 10 วินาที
-  const fetchWithTimeout = (url, ms=10000) => {
+  const fetchWithTimeout = (url, ms=15000) => {
     const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), ms);
+    const t = setTimeout(()=>{
+      console.warn('[loadData] fetch timeout after',ms,'ms');
+      ctrl.abort();
+    }, ms);
     return fetch(url, {signal:ctrl.signal}).finally(()=>clearTimeout(t));
   };
 
   try {
-    const res  = await fetchWithTimeout(SCRIPT_URL + '?action=get', 12000);
+    console.log('[loadData] fetching...');
+    const res  = await fetchWithTimeout(SCRIPT_URL + '?action=get', 15000);
+    console.log('[loadData] response status:', res.status);
     const json = await res.json();
+    console.log('[loadData] json keys:', Object.keys(json), 'data length:', json.data?.length);
     if (Array.isArray(json.data)) {
       rows = json.data.map(r => ({
         date:    parseSheetDate(r[0]),
@@ -886,14 +891,13 @@ async function loadData() {
         detail:  (r[7]||'').toString().trim(),
         persons: (r[8]||'').toString().trim(),
       }));
+      console.log('[loadData] rows loaded:', rows.length);
     }
     document.getElementById('lastSync').textContent =
       'ซิงค์ล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
     toast('✅ โหลดแล้ว '+ rows.length +' รายการ', 'success');
-    endProgress();
-    render(); stats();
   } catch(e) {
-    endProgress();
+    console.error('[loadData] error:', e.name, e.message);
     const isTimeout = e.name === 'AbortError';
     document.getElementById('lastSync').textContent = isTimeout ? 'หมดเวลาเชื่อมต่อ' : 'โหลดไม่สำเร็จ';
     document.getElementById('content').innerHTML = `
@@ -906,6 +910,11 @@ async function loadData() {
         <button class="btn btn-primary" onclick="loadData()">🔄 ลองใหม่</button>
       </div>`;
     toast(isTimeout ? '⏱ หมดเวลา — กด ลองใหม่' : '⚠ เชื่อมต่อ Sheets ไม่ได้', 'error');
+  } finally {
+    // render เสมอไม่ว่าจะสำเร็จหรือล้มเหลว (ถ้า error จะ render rows ที่มีอยู่)
+    endProgress();
+    if (rows.length > 0) { render(); stats(); }
+    console.log('[loadData] done, rows:', rows.length);
   }
 }
 
@@ -1718,127 +1727,7 @@ function toast(msg,type='success'){
   el.textContent=msg; el.className='toast '+type+' show';
   clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2800);
 }
-// ─── HAMBURGER & PAGE SWITCH ──────────────
-function toggleMenu(){
-  document.getElementById('hamMenu').classList.toggle('open');
-}
-document.addEventListener('click', e=>{
-  if(!e.target.closest('#hamburgerBtn')&&!e.target.closest('#hamMenu'))
-    document.getElementById('hamMenu').classList.remove('open');
-});
-let currentPage='main';
-function switchPage(p){
-  currentPage=p;
-  document.getElementById('hamMenu').classList.remove('open');
-  const mainEl=document.querySelector('.main:not(#kpiPage)');
-  const kpiEl=document.getElementById('kpiPage');
-  document.getElementById('menuMain').classList.toggle('active',p==='main');
-  document.getElementById('menuKpi').classList.toggle('active',p==='kpi');
-  if(p==='main'){ mainEl.style.display=''; kpiEl.style.display='none'; }
-  else { mainEl.style.display='none'; kpiEl.style.display=''; renderKPI(); }
-}
-
-// ─── KPI RENDER ───────────────────────────
-function renderKPI(){
-  const el=document.getElementById('kpiContent');
-  const all=rows;
-  const total=all.length;
-  if(!total){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">ยังไม่มีข้อมูล</div></div>`; return; }
-
-  // คำนวณ status counts
-  const cnt={};
-  SL.forEach(s=>cnt[s]=0);
-  all.forEach(r=>{ if(cnt[r.status]!==undefined) cnt[r.status]++; });
-  const success=cnt['ส่งครบ']||0;
-  const fail=(cnt['ส่งไม่ได้']||0);
-  const inprog=(cnt['กำลังดำเนินการ']||0)+(cnt['แบ่งส่ง']||0);
-  const hold=(cnt['HOLD']||0);
-  const rate=total>0?Math.round(success/total*100):0;
-  const pending=total-success;
-
-  // Big KPI cards
-  let html=`<div class="kpi-grid">
-    <div class="kpi-card" style="border-color:var(--green)33">
-      <div class="kpi-card-val" style="color:var(--green)">${rate}%</div>
-      <div class="kpi-card-lbl">อัตราส่งสำเร็จ</div>
-      <div class="kpi-card-sub">${success} / ${total} งาน</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-card-val">${total}</div>
-      <div class="kpi-card-lbl">งานทั้งหมด</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--yellow)33">
-      <div class="kpi-card-val" style="color:var(--yellow)">${inprog}</div>
-      <div class="kpi-card-lbl">กำลังดำเนินการ</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--red)33">
-      <div class="kpi-card-val" style="color:var(--red)">${fail}</div>
-      <div class="kpi-card-lbl">ส่งไม่ได้</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--purple)33">
-      <div class="kpi-card-val" style="color:var(--purple)">${hold}</div>
-      <div class="kpi-card-lbl">HOLD</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--orange)33">
-      <div class="kpi-card-val" style="color:var(--orange)">${cnt['แบ่งส่ง']||0}</div>
-      <div class="kpi-card-lbl">แบ่งส่ง</div>
-    </div>
-  </div>`;
-
-  // Status bar chart
-  html+=`<div class="kpi-section"><div class="kpi-section-title">สัดส่วนตามสถานะ</div>`;
-  const statusColors={'ส่งครบ':'var(--green)','แบ่งส่ง':'var(--orange)','ส่งไม่ได้':'var(--red)','กำลังดำเนินการ':'var(--yellow)','HOLD':'var(--purple)'};
-  SL.forEach(s=>{
-    const n=cnt[s]||0; const pct=total>0?Math.round(n/total*100):0;
-    html+=`<div class="kpi-bar-row">
-      <div class="kpi-bar-label">${s}</div>
-      <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:${pct}%;background:${statusColors[s]||'var(--accent)'}"></div></div>
-      <div class="kpi-bar-num">${n} <span style="color:var(--text3)">(${pct}%)</span></div>
-    </div>`;
-  });
-  html+=`</div>`;
-
-  // แนวโน้มรายวัน (14 วัน)
-  const dayMap={};
-  all.forEach(r=>{ if(r.date){ const d=r.date; dayMap[d]=(dayMap[d]||{total:0,ok:0}); dayMap[d].total++; if(r.status==='ส่งครบ') dayMap[d].ok++; } });
-  const days14=[]; const today14=new Date();
-  for(let i=13;i>=0;i--){ const d=new Date(today14); d.setDate(d.getDate()-i); const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; days14.push(ds); }
-  const maxDay=Math.max(1,...days14.map(d=>(dayMap[d]||{}).total||0));
-  html+=`<div class="kpi-section"><div class="kpi-section-title">แนวโน้มรายวัน (14 วัน)</div><div class="kpi-trend-row">`;
-  days14.forEach(ds=>{
-    const info=dayMap[ds]||{total:0,ok:0};
-    const h=Math.round((info.total/maxDay)*56)||2;
-    const p=info.total>0?Math.round(info.ok/info.total*100):0;
-    const col=p>=80?'var(--green)':p>=50?'var(--yellow)':'var(--red)';
-    const lbl=ds.slice(5).replace('-','/');
-    html+=`<div class="kpi-trend-day">
-      <div style="font-size:.6rem;color:var(--text3)">${info.total||''}</div>
-      <div class="kpi-trend-bar-wrap"><div class="kpi-trend-bar" style="height:${h}px;background:${info.total?col:'var(--border)'};width:22px"></div></div>
-      <div class="kpi-trend-lbl">${lbl}</div>
-    </div>`;
-  });
-  html+=`</div></div>`;
-
-  // แนวโน้มรายเดือน
-  const monMap={};
-  all.forEach(r=>{ if(r.date&&r.date.length>=7){ const m=r.date.slice(0,7); monMap[m]=(monMap[m]||{total:0,ok:0}); monMap[m].total++; if(r.status==='ส่งครบ') monMap[m].ok++; } });
-  const months=Object.keys(monMap).sort();
-  html+=`<div class="kpi-section"><div class="kpi-section-title">แนวโน้มรายเดือน</div>`;
-  const MON_SHORT=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  months.forEach(m=>{
-    const info=monMap[m]; const pct=Math.round(info.ok/info.total*100);
-    const col=pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)';
-    const [y,mo]=m.split('-'); const label=`${MON_SHORT[parseInt(mo)-1]} ${parseInt(y)+543}`;
-    html+=`<div class="kpi-bar-row">
-      <div class="kpi-bar-label" style="width:70px">${label}</div>
-      <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:${pct}%;background:${col}"></div></div>
-      <div class="kpi-bar-num">${info.ok}/${info.total} <span style="color:var(--text3)">${pct}%</span></div>
-    </div>`;
-  });
-  html+=`</div>`;
-
-  el.innerHTML=html;
-}
+['pwOverlay','adminModal','opModal','rowDetailModal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){
     if(e.target===this){ if(id==='pwOverlay')cancelPw(); else closeModal(id); }
   });
