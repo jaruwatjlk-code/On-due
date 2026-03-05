@@ -810,7 +810,11 @@ let srch = '';
 let fStart = null, fEnd = null;
 
 // ─── INIT ─────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => { applyTheme(currentTheme); loadData(); });
+window.addEventListener('DOMContentLoaded', () => {
+  applyTheme(currentTheme);
+  showSkeleton(); // ขึ้น skeleton ทันทีก่อน async fetch เริ่ม
+  requestAnimationFrame(()=>loadData());
+});
 
 // ─── TOP PROGRESS BAR ─────────────────────
 let progT;
@@ -857,9 +861,18 @@ function showSkeleton(){
 // ─── LOAD FROM SHEET ──────────────────────
 async function loadData() {
   startProgress();
-  showSkeleton();
+  // skeleton แสดงแล้วจาก init หรือเรียกใหม่ถ้ากด refresh
+  if(rows.length===0) showSkeleton();
+
+  // fetch พร้อม timeout 10 วินาที
+  const fetchWithTimeout = (url, ms=10000) => {
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), ms);
+    return fetch(url, {signal:ctrl.signal}).finally(()=>clearTimeout(t));
+  };
+
   try {
-    const res  = await fetch(SCRIPT_URL + '?action=get');
+    const res  = await fetchWithTimeout(SCRIPT_URL + '?action=get', 12000);
     const json = await res.json();
     if (Array.isArray(json.data)) {
       rows = json.data.map(r => ({
@@ -877,15 +890,26 @@ async function loadData() {
     document.getElementById('lastSync').textContent =
       'ซิงค์ล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
     toast('✅ โหลดแล้ว '+ rows.length +' รายการ', 'success');
+    endProgress();
+    render(); stats();
   } catch(e) {
-    toast('⚠ ไม่สามารถโหลดจาก Google Sheets', 'error');
-    document.getElementById('lastSync').textContent = 'โหลดไม่สำเร็จ';
+    endProgress();
+    const isTimeout = e.name === 'AbortError';
+    document.getElementById('lastSync').textContent = isTimeout ? 'หมดเวลาเชื่อมต่อ' : 'โหลดไม่สำเร็จ';
+    document.getElementById('content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">${isTimeout?'⏱':'📡'}</div>
+        <div class="empty-text" style="margin-bottom:1rem">
+          ${isTimeout ? 'Google Sheets ตอบช้าเกินไป' : 'เชื่อมต่อไม่ได้'}<br>
+          <span style="font-size:.75rem;color:var(--text3)">ตรวจสอบ internet แล้วลองใหม่</span>
+        </div>
+        <button class="btn btn-primary" onclick="loadData()">🔄 ลองใหม่</button>
+      </div>`;
+    toast(isTimeout ? '⏱ หมดเวลา — กด ลองใหม่' : '⚠ เชื่อมต่อ Sheets ไม่ได้', 'error');
   }
-  endProgress();
-  render(); stats();
 }
 
-function showLoad(v) { /* deprecated — ใช้ startProgress แทน */ }
+function showLoad(v) { /* deprecated */ }
 
 // ─── PUSH TO SHEET ────────────────────────
 async function pushSheet(action, data, idx) {
