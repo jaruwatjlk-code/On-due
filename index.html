@@ -283,13 +283,12 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .pname-chip.on{background:var(--accent-glow);border-color:var(--accent);color:var(--accent);font-weight:700}
 .free-group-title{font-size:.7rem;font-weight:700;color:var(--text3);padding:.5rem .7rem .2rem;background:var(--surface2)}
 
-/* TABLE display chips — เข้มขึ้นสำหรับ light theme */
+/* TABLE display chips */
 .pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px}
 .uchip{display:inline-flex;align-items:center;padding:.14rem .42rem;border-radius:20px;font-size:.69rem;font-weight:700;margin:1px;border:1.5px solid}
-
-/* light theme — พื้นหลังเข้ม ตัวหนังสือขาว/อ่อน */
-[data-theme="light"] .pchip{filter:saturate(1.4) brightness(.7);color:#fff!important}
-[data-theme="light"] .uchip{filter:saturate(1.4) brightness(.65);color:#fff!important;border-color:transparent!important}
+/* light theme: override inline colors to solid bg + white text */
+[data-theme="light"] .pchip{filter:none!important;color:#fff!important;opacity:1}
+[data-theme="light"] .uchip{filter:none!important;color:#fff!important;border-color:transparent!important;opacity:1}
 .chips-wrap{display:flex;flex-wrap:wrap;max-width:200px}
 
 /* SKELETON LOADING */
