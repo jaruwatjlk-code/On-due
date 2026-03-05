@@ -387,19 +387,17 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
   /* CALENDAR */
   .cal-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:calc(100vw - 2rem);max-width:320px}
 
-  /* TABLE — แสดง 4 คอลัมน์: ชื่องาน | กระบวนการ | ผู้รับผิดชอบ | สถานะ */
+  /* TABLE — แสดง 5 คอลัมน์: # | ชื่องาน | กระบวนการ | ผู้รับผิดชอบ | สถานะ */
   .table-wrap{overflow-x:hidden}
   table{font-size:.78rem;width:100%}
   thead th{padding:.45rem .5rem;font-size:.62rem}
   tbody td{padding:.55rem .5rem}
 
-  /* col: 1=ลำดับ 2=ชื่องาน 3=Order 4=กระบวนการ 5=ผู้รับผิดชอบ 6=วันที่นัด 7=เวลานัด 8=สถานะ 9=รายละเอียด 10=จัดการ */
-  th:nth-child(1),td:nth-child(1),
-  th:nth-child(3),td:nth-child(3),
+  /* col: 1=# 2=ลำดับ 3=ชื่องาน 4=Order 5=กระบวนการ 6=วันที่นัด 7=เวลานัด 8=สถานะ 9=ผู้รับผิดชอบ */
+  th:nth-child(2),td:nth-child(2),
+  th:nth-child(4),td:nth-child(4),
   th:nth-child(6),td:nth-child(6),
-  th:nth-child(7),td:nth-child(7),
-  th:nth-child(9),td:nth-child(9),
-  th:nth-child(10),td:nth-child(10){display:none}
+  th:nth-child(7),td:nth-child(7){display:none}
 
   /* แถวกดได้ — บอก user ด้วย highlight */
   tbody tr{cursor:pointer;-webkit-tap-highlight-color:rgba(79,124,255,.15)}
@@ -564,67 +562,12 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
           <div style="font-size:.82rem;color:var(--text2)" id="rd-detail">—</div>
         </div>
       </div>
-      <!-- Operator edit section -->
-      <div id="rd-op-section" style="display:none;border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
-        <div class="fg"><label class="flbl">อัปเดตสถานะ <span style="color:var(--red)">*</span></label>
-          <select class="fselect" id="rd-status-sel" onchange="styleSel(this)">
-            <option value="">-- เลือกสถานะ --</option>
-            <option value="ส่งครบ">✅ ส่งครบ</option>
-            <option value="แบ่งส่ง">🟠 แบ่งส่ง</option>
-            <option value="ส่งไม่ได้">🔴 ส่งไม่ได้</option>
-            <option value="กำลังดำเนินการ">🟡 กำลังดำเนินการ</option>
-            <option value="HOLD">🟣 HOLD</option>
-          </select>
-        </div>
-        <div class="fg"><label class="flbl">รายละเอียด / หมายเหตุ</label>
-          <textarea class="ftextarea" id="rd-detail-input" placeholder="กรอกรายละเอียด..."></textarea>
-        </div>
-      </div>
+      <!-- edit/action section — populated by openRowDetail() -->
+      <div id="rd-op-section"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('rowDetailModal')">ปิด</button>
       <button class="btn btn-primary" id="rdSaveBtn" style="display:none" onclick="saveRowDetail()">✅ บันทึกสถานะ</button>
-    </div>
-  </div>
-</div>
-
-<!-- ROW DETAIL MODAL (mobile tap) -->
-<div class="overlay" id="rowDetailModal">
-  <div class="modal-box" style="max-width:480px">
-    <div class="modal-header">
-      <div class="modal-title" id="rd-name">—</div>
-      <button class="modal-close" onclick="closeModal('rowDetailModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="op-meta-box" style="background:var(--surface2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;font-size:.8rem">
-          <div><div style="font-size:.65rem;color:var(--text3);margin-bottom:.15rem">ORDER</div><div class="td-mono" id="rd-order">—</div></div>
-          <div><div style="font-size:.65rem;color:var(--text3);margin-bottom:.15rem">วันที่นัด</div><div class="td-mono" id="rd-date">—</div></div>
-          <div><div style="font-size:.65rem;color:var(--text3);margin-bottom:.15rem">เวลานัด</div><div class="td-mono" id="rd-time">—</div></div>
-          <div><div style="font-size:.65rem;color:var(--text3);margin-bottom:.15rem">สถานะ</div><div id="rd-status">—</div></div>
-        </div>
-        <div style="margin-top:.6rem"><div style="font-size:.65rem;color:var(--text3);margin-bottom:.25rem">กระบวนการ</div><div id="rd-process">—</div></div>
-        <div style="margin-top:.5rem"><div style="font-size:.65rem;color:var(--text3);margin-bottom:.25rem">ผู้รับผิดชอบ</div><div id="rd-persons">—</div></div>
-        <div style="margin-top:.5rem"><div style="font-size:.65rem;color:var(--text3);margin-bottom:.15rem">รายละเอียด</div><div style="font-size:.8rem;color:var(--text2)" id="rd-detail">—</div></div>
-      </div>
-      <!-- ส่วน Operator update สถานะ -->
-      <div id="rd-op-section">
-        <div class="fg"><label class="flbl">อัปเดตสถานะ</label>
-          <select class="fselect" id="rd-status-sel" onchange="styleSel(this)">
-            <option value="">-- เลือกสถานะ --</option>
-            <option value="ส่งครบ">✅ ส่งครบ</option>
-            <option value="แบ่งส่ง">🟠 แบ่งส่ง</option>
-            <option value="ส่งไม่ได้">🔴 ส่งไม่ได้</option>
-            <option value="กำลังดำเนินการ">🟡 กำลังดำเนินการ</option>
-            <option value="HOLD">🟣 HOLD</option>
-          </select></div>
-        <div class="fg"><label class="flbl">รายละเอียด / หมายเหตุ</label>
-          <textarea class="ftextarea" id="rd-detail-input" placeholder="กรอกรายละเอียด..."></textarea></div>
-      </div>
-    </div>
-    <div class="modal-footer" id="rd-footer">
-      <button class="btn btn-secondary" onclick="closeModal('rowDetailModal')">ปิด</button>
-      <button class="btn btn-primary" id="rdSaveBtn" onclick="saveRd()">✅ บันทึกสถานะ</button>
     </div>
   </div>
 </div>
@@ -985,24 +928,16 @@ function render() {
       const cls = SCLS[r.status]||'';
       const lbl = SL.find(s=>(r.status||'').includes(s))||r.status||'—';
       const locked = isLocked(dk) && role!=='admin';
-      const act = role==='admin'
-        ? `<button class="btn btn-secondary btn-sm" onclick="openEdit(${gi})">✏</button>
-           <button class="btn btn-danger btn-sm" onclick="delRow(${gi})">🗑</button>`
-        : locked
-          ? `<span style="font-size:.68rem;color:var(--text3)">🔒</span>`
-          : `<button class="btn btn-secondary btn-sm" onclick="openOp(${gi})">✏ สถานะ</button>`;
-      return `<tr onclick="openRowDetail(${gi},event)" ${locked&&role!=='admin'?'data-locked="1"':''}>
+      return `<tr onclick="openRowDetail(${gi},event)" style="cursor:pointer" ${locked&&role!=='admin'?'data-locked="1"':''}>
         <td class="td-num">${rowNum}</td>
         <td class="td-num" style="color:var(--text3)">${esc(r.num)||'—'}</td>
         <td class="td-name">${esc(r.name)}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
         <td>${renderProcessChips(r.process)}</td>
-        <td>${renderPersonChips(r.persons)}</td>
         <td class="td-mono">${fmtDMY(r.date)}</td>
         <td class="td-mono">${esc(r.time)||'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
-        <td class="td-detail">${esc(r.detail)||'<span style="color:var(--text3)">—</span>'}</td>
-        <td class="td-act">${act}</td>
+        <td>${renderPersonChips(r.persons)}</td>
       </tr>`;
     }).join('');
     return `<div class="date-group">
@@ -1013,7 +948,7 @@ function render() {
       </div>
       <div class="table-wrap"><div style="overflow-x:auto">
         <table>
-          <thead><tr><th>#</th><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>ผู้รับผิดชอบ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
+          <thead><tr><th>#</th><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
       </div></div>
@@ -1131,11 +1066,9 @@ function updateRangeBtn(){
   else { lbl.textContent='ทั้งหมด'; btn.classList.remove('active'); clr.style.display='none'; }
 }
 
-// ─── ROW DETAIL MODAL (mobile) ────────────
+// ─── ROW DETAIL MODAL ─────────────────────
 let rdIdx = null;
 function openRowDetail(i, e) {
-  if (window.innerWidth > 700) return;
-  if (e && e.target.closest('.td-act')) return;
   const r = rows[i];
   const locked = isLocked(r.date) && role!=='admin';
   rdIdx = i;
@@ -1149,32 +1082,56 @@ function openRowDetail(i, e) {
   document.getElementById('rd-process').innerHTML = renderProcessChips(r.process);
   document.getElementById('rd-persons').innerHTML = renderPersonChips(r.persons);
   document.getElementById('rd-detail').textContent = r.detail||'—';
-  const canEdit = role==='operator' && !locked;
-  const showEdit = role==='admin' || canEdit;
-  document.getElementById('rd-op-section').style.display = canEdit ? 'block' : 'none';
-  document.getElementById('rdSaveBtn').style.display = canEdit ? 'inline-flex' : 'none';
-  if (canEdit) {
+
+  const sec = document.getElementById('rd-op-section');
+  const saveBtn = document.getElementById('rdSaveBtn');
+
+  if (role === 'admin') {
+    sec.style.display = 'block';
+    sec.innerHTML = `<div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.8rem;border-top:1px solid var(--border)">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('rowDetailModal');openEdit(${i})">✏ แก้ไข</button>
+      <button class="btn btn-danger btn-sm" onclick="closeModal('rowDetailModal');delRow(${i})">🗑 ลบ</button>
+    </div>`;
+    saveBtn.style.display = 'none';
+  } else if (locked) {
+    sec.style.display = 'block';
+    sec.innerHTML = `<div style="text-align:center;padding:.75rem;color:var(--text3);font-size:.8rem">🔒 ไม่สามารถแก้ไขข้อมูลย้อนหลังเกิน 3 วัน</div>`;
+    saveBtn.style.display = 'none';
+  } else {
+    // ผู้ใช้งาน แก้ไขสถานะ+รายละเอียดได้
+    sec.style.display = 'block';
+    sec.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
+      <div class="fg"><label class="flbl">สถานะ</label>
+        <select class="fselect" id="rd-status-sel" onchange="styleSel(this)">
+          <option value="">— เลือกสถานะ —</option>
+          <option value="ส่งครบ">ส่งครบ</option>
+          <option value="แบ่งส่ง">แบ่งส่ง</option>
+          <option value="ส่งไม่ได้">ส่งไม่ได้</option>
+          <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+          <option value="HOLD">HOLD</option>
+        </select>
+      </div>
+      <div class="fg"><label class="flbl">รายละเอียด</label>
+        <textarea class="ftextarea" id="rd-detail-input" placeholder="กรอกรายละเอียด..."></textarea>
+      </div>
+    </div>`;
     document.getElementById('rd-status-sel').value = r.status||'';
     styleSel(document.getElementById('rd-status-sel'));
     document.getElementById('rd-detail-input').value = r.detail||'';
-  }
-  if (locked) {
-    const sec = document.getElementById('rd-op-section');
-    sec.style.display='block';
-    sec.innerHTML=`<div style="text-align:center;padding:.75rem;color:var(--text3);font-size:.8rem">🔒 ไม่สามารถแก้ไขข้อมูลย้อนหลังเกิน 3 วัน</div>`;
-    document.getElementById('rdSaveBtn').style.display='none';
+    saveBtn.style.display = 'inline-flex';
   }
   openModal('rowDetailModal');
 }
 async function saveRowDetail() {
-  const status = document.getElementById('rd-status-sel').value;
+  const selEl = document.getElementById('rd-status-sel');
+  const detEl = document.getElementById('rd-detail-input');
+  if (!selEl) return;
+  const status = selEl.value;
   if (!status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
-  const detail = document.getElementById('rd-detail-input').value.trim();
-  // ── Optimistic: อัปเดต + ปิด modal ทันที ──
+  const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
   rows[rdIdx].status = status; rows[rdIdx].detail = detail;
   closeModal('rowDetailModal'); render(); stats();
   toast('✅ อัปเดตสถานะแล้ว','success');
-  // ── Sync Sheets ใน background ──
   pushSheet('update', rows[rdIdx], rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
 }
 function reqAdmin(){
