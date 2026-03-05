@@ -411,7 +411,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 
   <div class="op-notice" id="opNotice">
-    🔧 <strong>โหมด Operator:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
+    🔧 <strong>โหมด User ทั่วไป:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
   </div>
 
   <div id="content">
@@ -456,12 +456,12 @@ async function loadData() {
     const json = await res.json();
     if (Array.isArray(json.data)) {
       rows = json.data.map(r => ({
-        date:    (r[0]||'').toString().trim(),
+        date:    parseSheetDate(r[0]),
         num:     (r[1]||'').toString().trim(),
         name:    (r[2]||'').toString().trim(),
         order:   (r[3]||'').toString().trim(),
         process: (r[4]||'').toString().trim(),
-        time:    (r[5]||'').toString().trim(),
+        time:    parseSheetTime(r[5]),
         status:  (r[6]||'').toString().trim(),
         detail:  (r[7]||'').toString().trim(),
       }));
@@ -535,6 +535,7 @@ function render() {
         <td class="td-name">${esc(r.name)}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
         <td class="td-mono">${esc(r.process)||'—'}</td>
+        <td class="td-mono">${fmtDMY(r.date)}</td>
         <td class="td-mono">${esc(r.time)||'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
         <td class="td-detail">${esc(r.detail)||'<span style="color:var(--text3)">—</span>'}</td>
@@ -549,7 +550,7 @@ function render() {
       </div>
       <div class="table-wrap"><div style="overflow-x:auto">
         <table>
-          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
+          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
       </div></div>
@@ -747,6 +748,73 @@ function styleSel(s){
   if(r&&SSEL[r]) s.classList.add(SSEL[r]);
 }
 function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// แสดงวันที่แบบ d/M/YY (ค.ศ.)
+function fmtDMY(ds) {
+  if (!ds || ds === 'ไม่ระบุวันที่') return ds || '—';
+  try {
+    const d = new Date(ds + 'T00:00:00');
+    if (isNaN(d)) return ds;
+    return `${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(-2)}`;
+  } catch(e) { return ds; }
+}
+function parseSheetDate(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (!s) return '';
+  // รูปแบบ YYYY-MM-DD แล้ว
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO timestamp: 2025-06-03T00:00:00.000Z
+  if (s.includes('T')) {
+    const d = new Date(s);
+    if (!isNaN(d)) return d.toISOString().split('T')[0];
+  }
+  // DD/MM/YYYY หรือ M/D/YYYY
+  const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (slash) {
+    const [,a,b,y] = slash;
+    const year = y.length===2 ? '20'+y : y;
+    // Google Sheets ส่งเป็น M/D/YYYY
+    const d = new Date(`${year}-${b.padStart(2,'0')}-${a.padStart(2,'0')}`);
+    if (!isNaN(d)) return d.toISOString().split('T')[0];
+  }
+  // Date serial number (Google Sheets เก็บเป็นตัวเลข)
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    const serial = parseFloat(s);
+    if (serial > 1000) { // เป็น date serial
+      const d = new Date((serial - 25569) * 86400 * 1000);
+      if (!isNaN(d)) return d.toISOString().split('T')[0];
+    }
+  }
+  return s;
+}
+
+// แปลงเวลาจาก Google Sheets
+function parseSheetTime(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (!s) return '';
+  // HH:MM อยู่แล้ว
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(s)) return s.slice(0,5);
+  // ISO timestamp แปลก ๆ เช่น 1899-12-30T03:17:56.000Z
+  if (s.includes('T')) {
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      const h = d.getUTCHours().toString().padStart(2,'0');
+      const m = d.getUTCMinutes().toString().padStart(2,'0');
+      return `${h}:${m}`;
+    }
+  }
+  // decimal fraction (Google Sheets เก็บเวลาเป็น fraction ของวัน)
+  if (/^0\.\d+$/.test(s)) {
+    const frac = parseFloat(s);
+    const totalMin = Math.round(frac * 24 * 60);
+    const h = Math.floor(totalMin/60).toString().padStart(2,'0');
+    const m = (totalMin%60).toString().padStart(2,'0');
+    return `${h}:${m}`;
+  }
+  return s;
+}
 function fmtLong(ds){
   if(!ds||ds==='ไม่ระบุวันที่') return ds||'—';
   try{
