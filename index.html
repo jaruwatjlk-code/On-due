@@ -16,9 +16,27 @@
   --red:#ef4444;    --red-bg:rgba(239,68,68,0.12);
   --yellow:#eab308; --yellow-bg:rgba(234,179,8,0.12);
   --purple:#a855f7; --purple-bg:rgba(168,85,247,0.12);
+  --shadow:rgba(0,0,0,0.4);
 }
+[data-theme="light"] {
+  --bg:#f0f2f7; --surface:#ffffff; --surface2:#f5f7fc;
+  --border:#dde1ee; --border2:#b8bfd4;
+  --text:#1a1e2e; --text2:#5a6282; --text3:#9298b0;
+  --accent:#3b6ef5; --accent-glow:rgba(59,110,245,0.10);
+  --green:#16a34a;  --green-bg:rgba(22,163,74,0.10);
+  --orange:#ea6c00; --orange-bg:rgba(234,108,0,0.10);
+  --red:#dc2626;    --red-bg:rgba(220,38,38,0.10);
+  --yellow:#b45309; --yellow-bg:rgba(180,83,9,0.10);
+  --purple:#7c3aed; --purple-bg:rgba(124,58,237,0.10);
+  --shadow:rgba(0,0,0,0.08);
+}
+
+/* THEME TOGGLE */
+.theme-toggle{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px;cursor:pointer}
+.theme-opt{padding:.2rem .55rem;border-radius:16px;font-size:.72rem;font-weight:600;transition:all .2s;color:var(--text3);white-space:nowrap;user-select:none}
+.theme-opt.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(79,124,255,.35)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
 
 /* OVERLAY */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -289,6 +307,11 @@ td{padding:.77rem .9rem;vertical-align:middle}
   <div class="nav-spacer"></div>
   <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄 รีเฟรช</button>
   <button class="btn btn-primary btn-sm" id="addBtn" style="display:none" onclick="openAdd()">+ เพิ่มงาน</button>
+  <!-- Theme Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <div class="theme-opt" id="themeLight">☀ สว่าง</div>
+    <div class="theme-opt active" id="themeDark">🌙 มืด</div>
+  </div>
   <span class="role-badge operator" id="roleBadge">🔧 Operator</span>
   <button class="nav-btn" id="switchBtn" onclick="reqAdmin()">เปลี่ยนเป็น Admin</button>
   <button class="nav-btn" id="backBtn" style="display:none" onclick="backToOp()">← กลับ Operator</button>
@@ -357,6 +380,17 @@ td{padding:.77rem .9rem;vertical-align:middle}
 </div>
 
 <script>
+// ─── THEME ────────────────────────────────
+let currentTheme = localStorage.getItem('theme') || 'dark';
+function applyTheme(t) {
+  currentTheme = t;
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : '');
+  document.getElementById('themeLight').classList.toggle('active', t === 'light');
+  document.getElementById('themeDark').classList.toggle('active', t === 'dark');
+  localStorage.setItem('theme', t);
+}
+function toggleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); }
+
 // ─── CONFIG ───────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61n5MDBARadvY-whp8ja1hgYCQiekeSARVh9MfYzKaG0oLB3JzSWiprT0b5W1WhiH6Q/exec';
 
@@ -372,7 +406,7 @@ let srch = '';
 let fStart = null, fEnd = null;
 
 // ─── INIT ─────────────────────────────────
-window.addEventListener('DOMContentLoaded', loadData);
+window.addEventListener('DOMContentLoaded', () => { applyTheme(currentTheme); loadData(); });
 
 // ─── LOAD FROM SHEET ──────────────────────
 async function loadData() {
