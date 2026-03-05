@@ -86,7 +86,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .nav-spacer{flex:1}
 .role-badge{padding:.22rem .7rem;border-radius:20px;font-size:.71rem;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em}
 .role-badge.admin{background:rgba(79,124,255,.15);color:var(--accent)}
-.role-badge.ผู้ใช้งาน{background:rgba(34,197,94,.12);color:var(--green)}
+.role-badge.operator{background:rgba(34,197,94,.12);color:var(--green)}
 .nav-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:.27rem .62rem;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .15s}
 .nav-btn:hover{border-color:var(--border2);color:var(--text)}
 
@@ -243,12 +243,75 @@ td{padding:.77rem .9rem;vertical-align:middle}
 [data-theme="light"] .range-btn.active { color: var(--accent); }
 
 @media(max-width:700px){
-  .main{padding:.9rem}
+  /* NAV */
+  .topnav{height:auto;flex-wrap:wrap;padding:.5rem .8rem;gap:.4rem}
+  .nav-logo{font-size:.88rem;flex:1}
+  .nav-spacer{display:none}
+  .theme-toggle{order:10}
+  .role-badge{font-size:.68rem;padding:.18rem .5rem}
+  .nav-btn{font-size:.68rem;padding:.22rem .5rem}
+  #addBtn{font-size:.72rem;padding:.28rem .6rem}
+
+  /* MAIN */
+  .main{padding:.7rem}
+  .page-header{flex-direction:column;gap:.5rem;align-items:flex-start}
+  .stats-row{gap:.3rem}
+  .stat-chip{font-size:.65rem;padding:.18rem .45rem}
+
+  /* FILTER BAR */
+  .filter-bar{flex-wrap:wrap;gap:.5rem;padding:.6rem .75rem}
+  .filter-label{display:none}
+  .search-input{width:100%;flex:unset}
+  .range-btn{font-size:.78rem}
+
+  /* CALENDAR */
+  .cal-popup{width:calc(100vw - 2rem);left:50%;transform:translateX(-50%);position:fixed;top:auto;bottom:0;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+
+  /* TABLE → CARD layout on mobile */
+  .table-wrap{background:transparent;border:none;box-shadow:none}
+  table,thead,tbody,th,td,tr{display:block}
+  thead{display:none}
+  tbody tr{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-bottom:.65rem;
+    padding:.75rem .9rem;
+    position:relative;
+  }
+  tbody tr:hover{background:var(--surface)}
+  td{padding:.18rem 0;border:none;font-size:.82rem}
+  td::before{
+    content:attr(data-label);
+    font-size:.65rem;
+    font-weight:700;
+    color:var(--text3);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    display:block;
+    margin-bottom:.1rem
+  }
+  td:empty{display:none}
+  .td-num{position:absolute;top:.75rem;right:.9rem;font-size:.7rem;color:var(--text3)}
+  .td-num::before{display:none}
+  .td-name{font-size:.92rem;font-weight:700;margin-bottom:.3rem}
+  .td-name::before{display:none}
+  .td-act{position:absolute;bottom:.75rem;right:.9rem}
+  .td-act::before{display:none}
+  .td-detail{max-width:100%}
+  .chips-wrap{max-width:100%}
+
+  /* MODAL */
+  .modal-box,.modal-box[style*="max-width"]{max-width:100%!important;border-radius:16px 16px 0 0;margin:0;max-height:92vh}
+  .overlay{align-items:flex-end;padding:0}
+
+  /* PROCESS PICKER */
+  .proc-picker{gap:.3rem}
+  .proc-chip-btn{font-size:.7rem;padding:.2rem .45rem}
+  .pname-chip{font-size:.7rem;padding:.18rem .45rem}
+
+  /* FROW */
   .frow{grid-template-columns:1fr}
-  td,th{padding:.52rem .5rem}
-  .td-detail{display:none}
-  .cal-popup{min-width:unset;flex-direction:column;left:-10px;right:-10px}
-  .cal-sep{width:100%;height:1px;margin:.2rem 0}
 }
 </style>
 </head>
@@ -324,7 +387,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 </div>
 
-<!-- ผู้ใช้งาน MODAL -->
+<!-- OPERATOR MODAL -->
 <div class="overlay" id="opModal">
   <div class="modal-box" style="max-width:400px">
     <div class="modal-header">
@@ -370,9 +433,9 @@ td{padding:.77rem .9rem;vertical-align:middle}
     <div class="theme-opt active" id="themeLight">☀ สว่าง</div>
     <div class="theme-opt" id="themeDark">🌙 มืด</div>
   </div>
-  <span class="role-badge ผู้ใช้งาน" id="roleBadge">🔧 ผู้ใช้งาน</span>
+  <span class="role-badge operator" id="roleBadge">🔧 Operator</span>
   <button class="nav-btn" id="switchBtn" onclick="reqAdmin()">เปลี่ยนเป็น Admin</button>
-  <button class="nav-btn" id="backBtn" style="display:none" onclick="backToOp()">← กลับ ผู้ใช้งาน</button>
+  <button class="nav-btn" id="backBtn" style="display:none" onclick="backToOp()">← กลับ Operator</button>
 </nav>
 
 <div class="main">
@@ -415,7 +478,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
   </div>
 
   <div class="op-notice" id="opNotice">
-    🔧 <strong>โหมด ผู้ใช้งาน:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
+    🔧 <strong>โหมด Operator:</strong> แก้ไขได้เฉพาะ <strong>สถานะ</strong> และ <strong>รายละเอียด</strong>
   </div>
 
   <div id="content">
@@ -499,7 +562,7 @@ const SCOL = {'ส่งครบ':'var(--green)','แบ่งส่ง':'var(-
 const SBG  = {'ส่งครบ':'var(--green-bg)','แบ่งส่ง':'var(--orange-bg)','ส่งไม่ได้':'var(--red-bg)','กำลังดำเนินการ':'var(--yellow-bg)','HOLD':'var(--purple-bg)'};
 const SSEL = {'ส่งครบ':'ss1','แบ่งส่ง':'ss2','ส่งไม่ได้':'ss3','กำลังดำเนินการ':'ss4','HOLD':'ss5'};
 
-let role = 'ผู้ใช้งาน';
+let role = 'operator';
 let rows = [];
 let srch = '';
 let fStart = null, fEnd = null;
@@ -591,16 +654,16 @@ function render() {
            <button class="btn btn-danger btn-sm" onclick="delRow(${gi})">🗑</button>`
         : `<button class="btn btn-secondary btn-sm" onclick="openOp(${gi})">✏ สถานะ</button>`;
       return `<tr>
-        <td class="td-num">${esc(r.num)||'—'}</td>
-        <td class="td-name">${esc(r.name)}</td>
-        <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
-        <td>${renderProcessChips(r.process)}</td>
-        <td>${renderPersonChips(r.persons)}</td>
-        <td class="td-mono">${fmtDMY(r.date)}</td>
-        <td class="td-mono">${esc(r.time)||'—'}</td>
-        <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
-        <td class="td-detail">${esc(r.detail)||'<span style="color:var(--text3)">—</span>'}</td>
-        <td><div class="td-act">${act}</div></td>
+        <td class="td-num" data-label="ลำดับ">${esc(r.num)||'—'}</td>
+        <td class="td-name" data-label="ชื่องาน">${esc(r.name)}</td>
+        <td class="td-mono" data-label="Order">${r.order?Number(r.order).toLocaleString():'—'}</td>
+        <td data-label="กระบวนการ">${renderProcessChips(r.process)}</td>
+        <td data-label="ผู้รับผิดชอบ">${renderPersonChips(r.persons)}</td>
+        <td class="td-mono" data-label="วันที่นัด">${fmtDMY(r.date)}</td>
+        <td class="td-mono" data-label="เวลานัด">${esc(r.time)||'—'}</td>
+        <td data-label="สถานะ"><span class="sbadge ${cls}">${esc(lbl)}</span></td>
+        <td class="td-detail" data-label="รายละเอียด">${esc(r.detail)||'<span style="color:var(--text3)">—</span>'}</td>
+        <td class="td-act" data-label="">${act}</td>
       </tr>`;
     }).join('');
     return `<div class="date-group">
@@ -609,12 +672,12 @@ function render() {
         <div class="dg-line"></div>
         <div class="dg-cnt">${gRows.length} งาน</div>
       </div>
-      <div class="table-wrap"><div style="overflow-x:auto">
+      <div class="table-wrap">
         <table>
           <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>ผู้รับผิดชอบ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>รายละเอียด</th><th>จัดการ</th></tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
-      </div></div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -746,11 +809,11 @@ function confirmPw(){
   }
 }
 function cancelPw(){ document.getElementById('pwOverlay').classList.remove('open'); }
-function backToOp(){ setRole('ผู้ใช้งาน'); }
+function backToOp(){ setRole('operator'); }
 function setRole(r){
   role=r; const a=r==='admin';
-  document.getElementById('roleBadge').textContent=a?'👑 Admin':'🔧 ผู้ใช้งาน';
-  document.getElementById('roleBadge').className='role-badge '+(a?'admin':'ผู้ใช้งาน');
+  document.getElementById('roleBadge').textContent=a?'👑 Admin':'🔧 Operator';
+  document.getElementById('roleBadge').className='role-badge '+(a?'admin':'operator');
   document.getElementById('addBtn').style.display=a?'inline-flex':'none';
   document.getElementById('switchBtn').style.display=a?'none':'inline-block';
   document.getElementById('backBtn').style.display=a?'inline-block':'none';
@@ -817,7 +880,7 @@ async function delRow(i){
   toast('🗑 ลบแล้ว','success');
 }
 
-// ─── ผู้ใช้งาน ─────────────────────────────
+// ─── OPERATOR ─────────────────────────────
 function openOp(i){
   const r=rows[i];
   document.getElementById('op-idx').value=i;
@@ -1105,4 +1168,4 @@ function toast(msg,type='success'){
 });
 </script>
 </body>
-</html>
+  </html>
