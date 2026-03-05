@@ -438,22 +438,49 @@ function toggleTheme() { applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 // ─── CONFIG ───────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61n5MDBARadvY-whp8ja1hgYCQiekeSARVh9MfYzKaG0oLB3JzSWiprT0b5W1WhiH6Q/exec';
 
-// กระบวนการหลักและผู้รับผิดชอบ
+// กระบวนการหลักและผู้รับผิดชอบ (เรียงตามลำดับที่กำหนด)
 const PROCESS_DATA = [
-  { id:'PR',      color:'#f97316', bg:'rgba(249,115,22,.15)',  persons:['อุทัย','ตั้ม','อิ','ยู','ตุ๊ก','ณรงค์','สุริยา'] },
-  { id:'SP',      color:'#a855f7', bg:'rgba(168,85,247,.15)',  persons:['ลลิตา','นัท','จ๊ะจ๋า'] },
-  { id:'SG',      color:'#06b6d4', bg:'rgba(6,182,212,.15)',   persons:['แพรวา','โยเซฟ','กบ'] },
-  { id:'Replan',  color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
-  { id:'DC',      color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
-  { id:'ST',      color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
-  { id:'CA',      color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
-  { id:'LA',      color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
-  { id:'GL',      color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
-  { id:'MGL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
-  { id:'DOME',    color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
-  { id:'F3',      color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
-  { id:'PN',      color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
+  { id:'ALL',    color:'#64748b', bg:'rgba(100,116,139,.15)', persons:[] },
+  { id:'PR',     color:'#f97316', bg:'rgba(249,115,22,.15)',  persons:['อุทัย','ตั้ม','อิ','ยู','ตุ๊ก','ณรงค์','สุริยา'] },
+  { id:'SP',     color:'#a855f7', bg:'rgba(168,85,247,.15)',  persons:['ลลิตา','นัท','จ๊ะจ๋า'] },
+  { id:'CA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'LA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'HS',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'DC',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'ST',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'SG',     color:'#06b6d4', bg:'rgba(6,182,212,.15)',   persons:['แพรวา','โยเซฟ','กบ'] },
+  { id:'DOME',   color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
+  { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
+  { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
+  { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
 ];
+
+// สีแต่ละคน — กำหนดตายตัวให้แต่ละคนมีสีเฉพาะตัว
+const PERSON_COLORS = (() => {
+  const palette = [
+    '#f97316','#a855f7','#06b6d4','#10b981','#3b82f6',
+    '#f43f5e','#eab308','#8b5cf6','#0ea5e9','#14b8a6',
+    '#ec4899','#84cc16','#f59e0b','#6366f1','#22d3ee',
+    '#fb923c','#c084fc','#34d399','#60a5fa','#f472b6',
+    '#a3e635','#facc15','#818cf8','#2dd4bf','#fb7185',
+    '#38bdf8','#4ade80','#fbbf24','#e879f9','#67e8f9',
+    '#86efac','#fcd34d','#d8b4fe','#6ee7b7','#fca5a5',
+    '#93c5fd','#fdba74','#c4b5fd','#6ee7b7','#fde68a',
+  ];
+  const allPersons = [
+    ...new Set([
+      ...PROCESS_DATA.flatMap(p=>p.persons),
+      'Aom','อ้อ','หงส์','Nancy','Nannie','หมิว','Tui',
+      'กาน','ปุ๊กกี้','ฟงหวิน','เอ',
+      'ฉัตชัย','ธานี','ประกอบ','เมธี','จรัญ','พงศกร','ยุ้ย',
+    ])
+  ];
+  const map = {};
+  allPersons.forEach((n,i) => { map[n] = palette[i % palette.length]; });
+  return map;
+})();
 
 // กลุ่มคนฟรี (เพิ่มได้ทุก process)
 const FREE_GROUPS = [
@@ -766,8 +793,8 @@ async function saveAdmin(){
   const date=document.getElementById('f-date').value;
   if(!name){ toast('⚠ กรุณากรอกชื่องาน','error'); return; }
   if(!date){ toast('⚠ กรุณาเลือกวันที่','error'); return; }
-  const processStr = Object.keys(selProcs).filter(k=>selProcs[k]).join(',');
-  const personsStr = Object.keys(selPersons).filter(k=>selPersons[k]).join(',');
+  const processStr = selProcs['ALL'] ? 'ALL' : Object.keys(selProcs).filter(k=>selProcs[k]).join(',');
+  const personsStr = selPersons['ALL'] ? 'ALL' : Object.keys(selPersons).filter(k=>selPersons[k]).join(',');
   const d={date,num:document.getElementById('f-num').value.trim(),name,
     order:document.getElementById('f-order').value.trim(),
     process:processStr,
@@ -829,18 +856,36 @@ function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(
 // ─── PROCESS PICKER ───────────────────────
 function renderProcPicker() {
   const el = document.getElementById('procPicker');
-  el.innerHTML = PROCESS_DATA.map(p =>
-    `<span class="proc-chip-btn ${selProcs[p.id]?'on':''}"
-      style="background:${p.bg};color:${p.color};border-color:${selProcs[p.id]?p.color:'transparent'}"
+  const allOn = selProcs['ALL'];
+  // ALL button (แยกออกมา)
+  let html = `<span class="proc-chip-btn ${allOn?'on':''}"
+    style="background:${allOn?'rgba(100,116,139,.35)':'rgba(100,116,139,.12)'};color:${allOn?'#cbd5e1':'var(--text3)'};border-color:${allOn?'#94a3b8':'transparent'}"
+    onclick="toggleAll()">ALL</span>`;
+  // individual process chips (ข้าม ALL ใน array)
+  html += PROCESS_DATA.filter(p=>p.id!=='ALL').map(p =>
+    `<span class="proc-chip-btn ${selProcs[p.id]&&!allOn?'on':''}"
+      style="background:${p.bg};color:${p.color};border-color:${selProcs[p.id]&&!allOn?p.color:'transparent'};${allOn?'opacity:.35':''}"
       onclick="toggleProc('${p.id}')">${p.id}</span>`
   ).join('');
+  el.innerHTML = html;
   renderPersonSelector();
 }
 
+function toggleAll() {
+  if (selProcs['ALL']) {
+    selProcs = {};
+  } else {
+    selProcs = { ALL: true };
+    selPersons = { ALL: true };
+  }
+  renderProcPicker();
+}
+
 function toggleProc(id) {
+  if (selProcs['ALL']) { selProcs = {}; selPersons = {}; }
   selProcs[id] = !selProcs[id];
-  // ถ้า uncheck ให้ deselect คนใน process นั้นด้วย
   if (!selProcs[id]) {
+    delete selProcs[id];
     const pd = PROCESS_DATA.find(p=>p.id===id);
     if (pd) pd.persons.forEach(n => { delete selPersons[n]; });
   }
@@ -850,8 +895,21 @@ function toggleProc(id) {
 function renderPersonSelector() {
   const el = document.getElementById('personSelector');
   const activeProcs = PROCESS_DATA.filter(p => selProcs[p.id]);
+  const allOn = selProcs['ALL'];
 
   let html = '<div style="margin-top:.3rem">';
+
+  // ถ้าเลือก ALL
+  if (allOn) {
+    html += `<div class="person-block">
+      <div class="person-block-head"><span style="color:var(--text2)">ผู้รับผิดชอบ</span></div>
+      <div class="person-block-body">
+        <span class="pname-chip ${selPersons['ALL']?'on':''}"
+          style="${selPersons['ALL']?`background:rgba(255,255,255,.12);border-color:#fff;color:#fff`:''}"
+          onclick="togglePerson('ALL')">ALL</span>
+      </div>
+    </div>`;
+  }
 
   // กลุ่ม process ที่เลือก
   activeProcs.forEach(p => {
@@ -861,31 +919,49 @@ function renderPersonSelector() {
         <span style="color:var(--text3);font-weight:400">ผู้รับผิดชอบ</span>
       </div>
       <div class="person-block-body">
-        ${p.persons.map(n =>
-          `<span class="pname-chip ${selPersons[n]?'on':''}" onclick="togglePerson('${n}')">${n}</span>`
-        ).join('')}
+        ${p.persons.map(n => personChipHTML(n)).join('')}
       </div>
     </div>`;
   });
 
   // กลุ่มฟรี — แสดงเสมอ
-  html += `<div class="person-block" style="margin-top:${activeProcs.length?'.5rem':'0'}">
+  html += `<div class="person-block" style="margin-top:${(allOn||activeProcs.length)?'.5rem':'0'}">
     <div class="person-block-head"><span style="color:var(--text3)">➕ เพิ่มเติม</span></div>`;
   FREE_GROUPS.forEach(g => {
     html += `<div class="free-group-title">${g.name}</div>
       <div class="person-block-body">
-        ${g.persons.map(n =>
-          `<span class="pname-chip ${selPersons[n]?'on':''}" onclick="togglePerson('${n}')">${n}</span>`
-        ).join('')}
+        ${g.persons.map(n => personChipHTML(n)).join('')}
       </div>`;
   });
   html += '</div></div>';
   el.innerHTML = html;
 }
 
+function personChipHTML(name) {
+  const col = PERSON_COLORS[name] || 'var(--accent)';
+  const on  = selPersons[name];
+  const bg  = on ? hexToRgba(col, .18) : 'transparent';
+  const border = on ? col : 'var(--border)';
+  const textCol = on ? col : 'var(--text2)';
+  return `<span class="pname-chip" style="background:${bg};border-color:${border};color:${textCol};font-weight:${on?700:500}"
+    onclick="togglePerson('${name}')">${name}</span>`;
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 function togglePerson(name) {
-  selPersons[name] = !selPersons[name];
-  if (!selPersons[name]) delete selPersons[name];
+  if (name === 'ALL') {
+    selPersons['ALL'] = !selPersons['ALL'];
+    if (!selPersons['ALL']) delete selPersons['ALL'];
+  } else {
+    selPersons[name] = !selPersons[name];
+    if (!selPersons[name]) delete selPersons[name];
+  }
   renderPersonSelector();
 }
 
@@ -906,45 +982,71 @@ function renderPersonChips(personsStr) {
   if (!personsStr) return '<span style="color:var(--text3)">—</span>';
   const names = personsStr.split(',').map(s=>s.trim()).filter(Boolean);
   if (!names.length) return '<span style="color:var(--text3)">—</span>';
-  return '<div class="chips-wrap">' + names.map(n =>
-    `<span class="uchip">${esc(n)}</span>`
-  ).join('') + '</div>';
+  return '<div class="chips-wrap">' + names.map(n => {
+    if (n === 'ALL') return `<span class="uchip" style="background:rgba(255,255,255,.1);border-color:var(--border2);color:var(--text);font-weight:700">ALL</span>`;
+    const col = PERSON_COLORS[n] || 'var(--text2)';
+    const bg  = hexToRgba2(col, .13);
+    return `<span class="uchip" style="background:${bg};border-color:${col}55;color:${col};font-weight:600">${esc(n)}</span>`;
+  }).join('') + '</div>';
 }
 
+function hexToRgba2(hex, a) {
+  try {
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  } catch(e) { return 'var(--surface2)'; }
+}
+
+// parse YYYY-MM-DD → {y,m,d} ปลอดภัยจาก timezone
+function parseDateParts(ds) {
+  if (!ds || ds==='ไม่ระบุวันที่') return null;
+  const p = ds.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!p) return null;
+  return { y:parseInt(p[1]), m:parseInt(p[2])-1, d:parseInt(p[3]) };
+}
 // แสดงวันที่แบบ d/M/YY (ค.ศ.)
 function fmtDMY(ds) {
-  if (!ds || ds === 'ไม่ระบุวันที่') return ds || '—';
-  try {
-    const d = new Date(ds + 'T00:00:00');
-    if (isNaN(d)) return ds;
-    return `${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(-2)}`;
-  } catch(e) { return ds; }
+  const p = parseDateParts(ds);
+  if (!p) return ds||'—';
+  return `${p.d}/${p.m+1}/${String(p.y).slice(-2)}`;
 }
 function parseSheetDate(v) {
   if (!v) return '';
   const s = String(v).trim();
   if (!s) return '';
-  // รูปแบบ YYYY-MM-DD แล้ว
+  // YYYY-MM-DD อยู่แล้ว
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
   // ISO timestamp: 2025-06-03T00:00:00.000Z
   if (s.includes('T')) {
     const d = new Date(s);
-    if (!isNaN(d)) return d.toISOString().split('T')[0];
+    if (!isNaN(d)) {
+      // ใช้ local time เพื่อป้องกัน timezone shift
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${dd}`;
+    }
   }
-  // Google Sheets ส่งเป็น M/D/YYYY
+  // Google Sheets ส่งเป็น M/D/YYYY หรือ M/D/YY
   const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if (slash) {
-    const [,m,d,y] = slash;
-    const year = y.length===2 ? '20'+y : y;
-    const dt = new Date(`${year}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`);
-    if (!isNaN(dt)) return dt.toISOString().split('T')[0];
+    const [,mo,dy,y] = slash;
+    const year = y.length<=2 ? '20'+y.padStart(2,'0') : y;
+    // สร้างตรงๆ ไม่ผ่าน Date() เพื่อป้องกัน timezone
+    return `${year}-${mo.padStart(2,'0')}-${dy.padStart(2,'0')}`;
   }
-  // Date serial number (Google Sheets เก็บเป็นตัวเลข)
+  // Date serial number
   if (/^\d+(\.\d+)?$/.test(s)) {
     const serial = parseFloat(s);
-    if (serial > 1000) { // เป็น date serial
-      const d = new Date((serial - 25569) * 86400 * 1000);
-      if (!isNaN(d)) return d.toISOString().split('T')[0];
+    if (serial > 1000) {
+      const ms = (serial - 25569) * 86400 * 1000;
+      const d = new Date(ms);
+      if (!isNaN(d)) {
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth()+1).padStart(2,'0');
+        const dd = String(d.getUTCDate()).padStart(2,'0');
+        return `${y}-${m}-${dd}`;
+      }
     }
   }
   return s;
@@ -977,21 +1079,18 @@ function parseSheetTime(v) {
   return s;
 }
 function fmtLong(ds){
-  if(!ds||ds==='ไม่ระบุวันที่') return ds||'—';
-  try{
-    const d=new Date(ds+'T00:00:00');
-    const days=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-    const mon=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    return `${days[d.getDay()]} ${d.getDate()} ${mon[d.getMonth()]} ${d.getFullYear()+543}`;
-  }catch(e){return ds;}
+  const p = parseDateParts(ds);
+  if (!p) return ds||'—';
+  const days=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const mon=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const dow = new Date(p.y, p.m, p.d).getDay();
+  return `${days[dow]} ${p.d} ${mon[p.m]} ${p.y+543}`;
 }
 function fmtShort(ds){
-  if(!ds)return'';
-  try{
-    const d=new Date(ds+'T00:00:00');
-    const mon=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    return `${d.getDate()} ${mon[d.getMonth()]} ${(d.getFullYear()+543).toString().slice(-2)}`;
-  }catch(e){return ds;}
+  const p = parseDateParts(ds);
+  if (!p) return ds||'';
+  const mon=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${p.d} ${mon[p.m]} ${String(p.y+543).slice(-2)}`;
 }
 let toastT;
 function toast(msg,type='success'){
