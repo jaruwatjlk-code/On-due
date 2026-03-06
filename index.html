@@ -410,18 +410,23 @@ function fmtDate(ds){
 }
 function sCls(s){return{'ส่งครบ':'ss1','แบ่งส่ง':'ss2','ส่งไม่ได้':'ss3','กำลังดำเนินการ':'ss4','HOLD':'ss5'}[s]||'';}
 
-// ══ LOAD DATA ════════════════════════════════════════
+// ══ PENDING QUEUE — local edits ที่รอ sync ══════════
+const pendingEdits = {};
+function setPending(jobId,procId,data){ pendingEdits[jobId+'::'+procId]={jobId,procId,data,ts:Date.now()}; }
+function clearPending(jobId,procId){ delete pendingEdits[jobId+'::'+procId]; }
+
+// ══ LOAD DATA — merge กับ local state ════════════════
 async function loadData(manual=false){
   if(isLoading)return;
   isLoading=true;
   const btn=document.getElementById('refreshBtn');
-  btn.innerHTML='<span class="spin">⏳</span> กำลังโหลด...';
+  btn.innerHTML='<span class="spin">⏳</span>';
   document.getElementById('loadingBar').style.display='block';
   try{
     const res=await fetch(`${SCRIPT_URL}?action=getAll`);
     const json=await res.json();
     if(json.error)throw new Error(json.error);
-    JOBS=(json.jobs||[]).map(r=>({
+    const incoming=(json.jobs||[]).map(r=>({
       id:r.job_id,num:String(r.num||''),name:String(r.name||''),
       order:Number(r.order_qty||0),fg:Number(r.fg_qty||0),
       date:String(r.date||''),time:String(r.time||''),
@@ -430,14 +435,23 @@ async function loadData(manual=false){
       notice:String(r.notice||''),procData:r.procData||{},
       _history:r._history||[],
     }));
+    // MERGE: ถ้ายังมี pending edit → คง local ไว้ (local wins)
+    JOBS=incoming.map(newJ=>{
+      const oldJ=JOBS.find(x=>x.id===newJ.id);
+      const merged={...newJ.procData};
+      Object.values(pendingEdits).forEach(p=>{
+        if(p.jobId===newJ.id) merged[p.procId]=p.data;
+      });
+      return{...newJ, procData:merged, fg:oldJ?._localFg??newJ.fg};
+    });
     render();
-    if(manual)showToast(`✅ โหลดแล้ว ${JOBS.length} งาน`,'success');
+    if(manual)showToast('✅ โหลดแล้ว '+JOBS.length+' งาน','success');
   }catch(e){
-    if(!JOBS.length)showError(`❌ โหลดไม่ได้: ${e.message}`);
-    else showToast('⚠ Refresh ไม่สำเร็จ','error');
+    if(!JOBS.length)showError('❌ โหลดไม่ได้: '+e.message);
+    else showToast('⚠ Refresh ล้มเหลว — ข้อมูล local ยังอยู่','error');
   }finally{
     isLoading=false;
-    btn.innerHTML='🔄 Refresh';
+    btn.innerHTML='🔄';
     document.getElementById('loadingBar').style.display='none';
     resetCountdown();
   }
@@ -878,17 +892,31 @@ async function saveProcEdit(){
   const j=JOBS.find(x=>x.id===editJobId);if(!j)return;
   if(!j.procData)j.procData={};
   const newData={status:editPS,time:document.getElementById('pm-time').value,comment:document.getElementById('pm-comment').value.trim()};
+  // 1) optimistic update + mark pending
   j.procData[editProcId]=newData;
-  // update j.process field: rebuild from wip nodes
   const wipNodes=ROUTE.filter(s=>j.procData[s]?.status==='wip');
   if(wipNodes.length)j.process=wipNodes.join(',');
+  setPending(j.id,editProcId,newData);
   closeModal();render();
+  // 2) POST ไป Sheet — ลบ no-cors เพื่อให้รู้ผลจริง
   try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'}, // text/plain หลีกเลี่ยง preflight
       body:JSON.stringify({action:'upsertProcess',job_id:j.id,process:editProcId,
-        data:{proc_status:newData.status||'',proc_time:newData.time||'',comment:newData.comment||''},user:'operator'})});
-    showToast('✅ บันทึกแล้ว','success');
-  }catch(e){showToast('⚠ Sync ไม่สำเร็จ','error');}
+        data:{proc_status:newData.status||'',proc_time:newData.time||'',comment:newData.comment||''},user:'operator'})
+    });
+    const result=await res.json().catch(()=>({}));
+    if(result.ok||result.action){
+      clearPending(j.id,editProcId); // sync สำเร็จ — เคลียร์ pending
+      showToast('✅ บันทึกลง Sheet แล้ว','success');
+    }else{
+      showToast('⚠ Sheet ตอบกลับผิดปกติ — local ยังอยู่','error');
+    }
+  }catch(e){
+    // เก็บ pending ไว้ — จะ retry ครั้งหน้า
+    showToast('⚠ ไม่มีการเชื่อมต่อ — บันทึก local แล้ว','error');
+  }
 }
 function closeModal(){
   document.getElementById('procModal').classList.remove('open');
