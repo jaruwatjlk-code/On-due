@@ -227,11 +227,11 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .s5{background:var(--purple-bg);color:var(--purple)}
 
 /* Light theme — solid bg + contrasting text */
-[data-theme="light"] .s1{background:#16a34a;color:#fff}
-[data-theme="light"] .s2{background:#ea580c;color:#000}
-[data-theme="light"] .s3{background:#dc2626;color:#fff}
-[data-theme="light"] .s4{background:#ca8a04;color:#000}
-[data-theme="light"] .s5{background:#7c3aed;color:#fff}
+[data-theme="light"] .s1{background:#1a9e3f;color:#fff}
+[data-theme="light"] .s2{background:#e8820c;color:#000}
+[data-theme="light"] .s3{background:#d42b2b;color:#fff}
+[data-theme="light"] .s4{background:#d4a800;color:#000}
+[data-theme="light"] .s5{background:#6b35c9;color:#fff}
 [data-theme="light"] .s1::before,[data-theme="light"] .s3::before,[data-theme="light"] .s5::before{background:#fff}
 [data-theme="light"] .s2::before,[data-theme="light"] .s4::before{background:#000}
 
@@ -1658,7 +1658,7 @@ function renderPersonChips(personsStr, maxShow=2) {
     const col    = n==='ALL' ? '#64748b' : (PERSON_COLORS[n] || '#64748b');
     const bg     = light ? col : (n==='ALL' ? 'rgba(255,255,255,.1)' : hexToRgba2(col,.13));
     const border = light ? 'transparent' : (n==='ALL' ? 'var(--border2)' : col+'55');
-    const txt    = light ? contrastText(col) : col;
+    const txt    = light ? '#000' : col;
     const hidden = i >= maxShow;
     chips += `<span class="uchip${hidden?' uchip-extra_'+uid:''}"
       style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${esc(n)}</span>`;
