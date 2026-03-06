@@ -146,7 +146,8 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .stat-chip.dimmed{opacity:.35}
 
 /* STATUS FILTER BAR */
-.status-filter-bar{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:.9rem;padding-bottom:2px}
+.status-filter-bar{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:.45rem 1rem;margin-bottom:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-bottom:none;position:sticky;top:var(--sticky-filter,56px);z-index:89}
+.status-filter-bar::-webkit-scrollbar{display:none}
 .status-filter-bar::-webkit-scrollbar{display:none}
 .sf-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;border:1.5px solid var(--border);color:var(--text3);background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;user-select:none}
 .sf-chip:hover{border-color:var(--border2);color:var(--text)}
@@ -159,8 +160,15 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 /* CHEVRON visual cue on rows */
 .td-cue{width:18px;color:var(--text3);font-size:.7rem;text-align:right;padding-right:.5rem!important}
 
+/* OVERDUE ROW */
+.row-overdue{background:rgba(239,68,68,.08)!important;border-left:3px solid var(--red)}
+[data-theme="light"] .row-overdue{background:rgba(220,38,38,.07)!important;border-left:3px solid #dc2626}
+.row-overdue .td-cue{color:var(--red)}
+.overdue-tag{display:inline-flex;align-items:center;gap:.25rem;font-size:.62rem;font-weight:700;color:var(--red);background:var(--red-bg);border:1px solid var(--red)44;border-radius:20px;padding:.1rem .45rem;margin-left:.4rem;white-space:nowrap;vertical-align:middle}
+[data-theme="light"] .overdue-tag{color:#dc2626;background:#fee2e2;border-color:#dc262633}
+
 /* FILTER BAR */
-.filter-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.3rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem}
+.filter-bar{display:flex;align-items:center;gap:.75rem;margin-bottom:0;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;padding:.75rem 1rem;position:sticky;top:56px;z-index:90}
 .filter-label{font-size:.74rem;color:var(--text3);font-weight:600;white-space:nowrap}
 .range-btn{display:inline-flex;align-items:center;gap:.45rem;padding:.38rem .8rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:'IBM Plex Sans Thai',sans-serif;font-size:.81rem;cursor:pointer;transition:all .15s;white-space:nowrap}
 .range-btn:hover{border-color:var(--border2);color:var(--text)}
@@ -182,7 +190,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .date-sep{color:var(--text3);font-size:.85rem;font-weight:600}
 
 /* PRESET BAR */
-.preset-bar{display:flex;align-items:center;gap:.35rem;margin-bottom:.6rem;flex-wrap:wrap}
+.preset-bar{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;padding:.45rem 1rem .6rem;margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;position:sticky;top:var(--sticky-status,56px);z-index:88;box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .cal-preset{padding:.22rem .62rem;border-radius:20px;font-size:.72rem;font-weight:600;border:1.5px solid var(--border);color:var(--text3);background:transparent;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap}
 .cal-preset:hover{border-color:var(--accent);color:var(--accent)}
 .cal-preset.on{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -197,9 +205,9 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .dg-cnt{font-size:.7rem;color:var(--text3);white-space:nowrap}
 
 /* TABLE */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:visible}
 table{width:100%;border-collapse:collapse;font-size:.83rem}
-thead th{padding:.62rem .9rem;text-align:left;font-size:.67rem;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;background:var(--surface);border-bottom:1px solid var(--border);white-space:nowrap}
+thead th{padding:.62rem .9rem;text-align:left;font-size:.67rem;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;background:var(--surface);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:var(--sticky-thead,56px);z-index:80}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
@@ -233,6 +241,8 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .flbl{display:block;font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:.33rem}
 .finput,.fselect,.ftextarea{width:100%;padding:.55rem .78rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'IBM Plex Sans Thai',sans-serif;font-size:.86rem;outline:none;transition:border-color .15s;appearance:none}
 .finput:focus,.fselect:focus,.ftextarea:focus{border-color:var(--accent)}
+input[type="time"].finput,input[type="date"].finput{color-scheme:dark}
+[data-theme="light"] input[type="time"].finput,[data-theme="light"] input[type="date"].finput{color-scheme:light}
 .ftextarea{resize:vertical;min-height:72px}
 .fselect{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b90a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.9rem}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
@@ -473,7 +483,7 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
         <div class="fg"><label class="flbl">วันที่นัด <span style="color:var(--red)">*</span></label>
           <input type="date" class="finput" id="f-date"/></div>
         <div class="fg"><label class="flbl">เวลานัด</label>
-          <input type="text" class="finput" id="f-time" placeholder="09:00"/></div>
+          <input type="time" class="finput" id="f-time"/></div>
       </div>
       <div class="frow">
         <div class="fg"><label class="flbl">ลำดับ</label>
@@ -796,6 +806,10 @@ window.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
   showSkeleton(); // ขึ้น skeleton ทันทีก่อน async fetch เริ่ม
   requestAnimationFrame(()=>loadData());
+  // re-render ทุก 1 นาที เพื่อ update overdue status อัตโนมัติ
+  setInterval(()=>{ if(rows.length>0){ render(); stats(); } }, 60000);
+  // คำนวณ sticky offset หลัง DOM render
+  setTimeout(updateStickyOffsets, 200);
 });
 
 // ─── TOP PROGRESS BAR ─────────────────────
@@ -958,6 +972,18 @@ function isLocked(dateStr){
   return rowDate < cutoff;
 }
 
+// เช็คว่างานเลยเวลานัดแล้วหรือยัง
+function isOverdue(dateStr, timeStr, status){
+  if(status !== 'กำลังดำเนินการ') return false;
+  if(!dateStr) return false;
+  const p = parseDateParts(dateStr); if(!p) return false;
+  const hm = timeStr ? timeStr.match(/^(\d{1,2}):(\d{2})/) : null;
+  const h = hm ? parseInt(hm[1]) : 23;
+  const m = hm ? parseInt(hm[2]) : 59;
+  const due = new Date(p.y, p.m, p.d, h, m, 0);
+  return new Date() > due;
+}
+
 function render() {
   const data = filtered();
   const el   = document.getElementById('content');
@@ -980,16 +1006,17 @@ function render() {
       const cls = SCLS[r.status]||'';
       const lbl = SL.find(s=>(r.status||'').includes(s))||r.status||'—';
       const locked = isLocked(dk) && role!=='admin';
-      return `<tr onclick="openRowDetail(${gi},event)" style="cursor:pointer" ${locked&&role!=='admin'?'data-locked="1"':''}>
+      const overdue = isOverdue(r.date, r.time, r.status);
+      return `<tr onclick="openRowDetail(${gi},event)" style="cursor:pointer" class="${overdue?'row-overdue':''}" ${locked&&role!=='admin'?'data-locked="1"':''}>
         <td class="td-num">${esc(r.num)||'—'}</td>
-        <td class="td-name">${esc(r.name)}</td>
+        <td class="td-name">${esc(r.name)}${overdue?'<span class="overdue-tag">⚠ เกินกำหนด</span>':''}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
         <td>${renderProcessChips(r.process)}</td>
         <td class="td-mono">${fmtDMY(r.date)}</td>
-        <td class="td-mono">${esc(r.time)||'—'}</td>
+        <td class="td-mono">${r.time?`<span style="color:${overdue?'var(--red)':''};font-weight:${overdue?700:400}">${esc(r.time)}</span>`:'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
         <td>${renderPersonChips(r.persons)}</td>
-        <td class="td-cue">›</td>
+        <td class="td-cue">${overdue?'⚠':'›'}</td>
       </tr>`;
     }).join('');
     return `<div class="date-group">
@@ -1034,10 +1061,28 @@ function stats() {
       </span>`;
     }).join('');
 
+  requestAnimationFrame(updateStickyOffsets);
 }
 
 
-// ─── STATUS FILTER ────────────────────────
+// ─── STICKY OFFSET CALCULATOR ─────────────
+function updateStickyOffsets(){
+  const nav    = document.querySelector('.topnav');
+  const filter = document.querySelector('.filter-bar');
+  const status = document.querySelector('.status-filter-bar');
+  const preset = document.querySelector('.preset-bar');
+  const navH    = nav    ? nav.offsetHeight    : 56;
+  const filterH = filter ? filter.offsetHeight : 0;
+  const statusH = status ? status.offsetHeight : 0;
+  const r = document.documentElement;
+  r.style.setProperty('--sticky-filter', navH+'px');
+  r.style.setProperty('--sticky-status', (navH+filterH)+'px');
+  r.style.setProperty('--sticky-preset', (navH+filterH+statusH)+'px');
+  r.style.setProperty('--sticky-thead',  (navH+filterH+statusH+(preset?preset.offsetHeight:0))+'px');
+}
+
+window.addEventListener('resize', updateStickyOffsets);
+
 
 
 
