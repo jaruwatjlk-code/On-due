@@ -89,6 +89,9 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .overlay.open{opacity:1;pointer-events:all}
 .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;transform:translateY(12px);transition:transform .2s}
 .overlay.open .modal-box{transform:translateY(0)}
+/* swipe handle on mobile */
+.modal-box::before{content:'';display:block;width:36px;height:4px;background:var(--border2);border-radius:2px;margin:.55rem auto .1rem;opacity:0}
+@media(max-width:700px){.modal-box::before{opacity:1}}
 .modal-header{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
 .modal-title{font-size:.98rem;font-weight:700;flex:1}
 .modal-close{background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;transition:color .15s}
@@ -477,7 +480,7 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
       <div class="modal-title" id="adminTitle">เพิ่มงานใหม่</div>
       <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" oninput="saveDraft()" onchange="saveDraft()">
       <input type="hidden" id="editIdx"/>
       <div class="frow">
         <div class="fg"><label class="flbl">วันที่นัด <span style="color:var(--red)">*</span></label>
@@ -928,6 +931,107 @@ async function pushSheet(action, data, idx) {
 }
 
 // ─── RENDER ───────────────────────────────
+// ─── 1. SMART EMPTY STATE ─────────────────
+function emptyMessage() {
+  if (srch)        return { icon:'🔍', text:`ไม่พบ "${srch}"` };
+  if (fStatus)     return { icon:'📋', text:`ไม่มีงานสถานะ "${fStatus}"` };
+  if (fStart||fEnd){
+    const s = fStart ? fmtShort(fStart) : '...';
+    const e = fEnd   ? fmtShort(fEnd)   : '...';
+    return { icon:'📅', text:`ไม่มีงานในช่วง ${s} – ${e}` };
+  }
+  return { icon:'📂', text:'ไม่มีข้อมูล' };
+}
+
+// ─── 2. COLUMN SORT ───────────────────────
+let sortCol = null;
+let sortDir = 1;
+function setSort(col) {
+  if (sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=1; }
+  render();
+}
+function sortedRows(arr) {
+  if (!sortCol) return arr;
+  return [...arr].sort((a,b) => {
+    if (sortCol==='name')  return (a.name||'').localeCompare(b.name||'','th')*sortDir;
+    if (sortCol==='order') return ((parseFloat(a.order)||0)-(parseFloat(b.order)||0))*sortDir;
+    if (sortCol==='date')  return (a.date||'').localeCompare(b.date||'')*sortDir;
+    if (sortCol==='time')  return ((a.time||'99:99').localeCompare(b.time||'99:99'))*sortDir;
+    if (sortCol==='status') return (statusRank(a.status)-statusRank(b.status))*sortDir;
+    return 0;
+  });
+}
+function si(col){ return sortCol===col?(sortDir===1?' ↑':' ↓'):'<span style="opacity:.25;font-size:.65em">⇅</span>'; }
+
+// ─── 3. SWIPE-TO-CLOSE MODAL ──────────────
+function initSwipeClose(modalId) {
+  const box = document.querySelector(`#${modalId} .modal-box`);
+  if (!box) return;
+  let startY=0, curY=0, active=false;
+  box.addEventListener('touchstart',e=>{
+    if(e.target.closest('select,input,textarea,button')) return;
+    startY=e.touches[0].clientY; active=true; curY=0;
+    box.style.transition='none';
+  },{passive:true});
+  box.addEventListener('touchmove',e=>{
+    if(!active) return;
+    curY=e.touches[0].clientY-startY;
+    if(curY>0) box.style.transform=`translateY(${curY}px)`;
+  },{passive:true});
+  box.addEventListener('touchend',()=>{
+    if(!active) return; active=false;
+    box.style.transition='';
+    if(curY>80){ box.style.transform=''; closeModal(modalId); }
+    else box.style.transform='';
+  });
+}
+
+// ─── 4. AUTO-SAVE DRAFT ───────────────────
+const DRAFT_KEY='jt_admin_draft';
+function saveDraft(){
+  try{
+    localStorage.setItem(DRAFT_KEY,JSON.stringify({
+      date:document.getElementById('f-date').value,
+      num:document.getElementById('f-num').value,
+      name:document.getElementById('f-name').value,
+      order:document.getElementById('f-order').value,
+      time:document.getElementById('f-time').value,
+      status:document.getElementById('f-status').value,
+      detail:document.getElementById('f-detail').value,
+      procs:JSON.stringify(selProcs),
+      persons:JSON.stringify(selPersons),
+    }));
+  }catch(e){}
+}
+function loadDraft(){
+  try{
+    const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+    if(!d) return false;
+    if(d.date)  document.getElementById('f-date').value=d.date;
+    if(d.num)   document.getElementById('f-num').value=d.num;
+    if(d.name)  document.getElementById('f-name').value=d.name;
+    if(d.order) document.getElementById('f-order').value=d.order;
+    if(d.time)  document.getElementById('f-time').value=d.time;
+    if(d.status){document.getElementById('f-status').value=d.status;styleSel(document.getElementById('f-status'));}
+    if(d.detail)document.getElementById('f-detail').value=d.detail;
+    if(d.procs) selProcs=JSON.parse(d.procs);
+    if(d.persons)selPersons=JSON.parse(d.persons);
+    return !!(d.name||d.date);
+  }catch(e){return false;}
+}
+function clearDraft(){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){} }
+
+// ─── 5. AUDIT LOG ─────────────────────────
+function pushAudit(rowName, oldStatus, newStatus, detail){
+  const now=new Date();
+  const ts=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  fetch(SCRIPT_URL,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'audit',data:{timestamp:ts,user:role==='admin'?'Admin':'Operator',rowName,oldStatus:oldStatus||'—',newStatus,detail:detail||''}})
+  }).catch(()=>{});
+}
+
 let fStatus = null;
 function toggleStatusFilter(s) {
   fStatus = (fStatus===s) ? null : s;
@@ -988,7 +1092,8 @@ function render() {
   const data = filtered();
   const el   = document.getElementById('content');
   if (!data.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">ไม่มีข้อมูล</div></div>`;
+    const {icon,text} = emptyMessage();
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-text">${text}</div></div>`;
     return;
   }
   const grps = {};
@@ -1000,7 +1105,7 @@ function render() {
   el.innerHTML = keys.map(dk => {
     const gRows = grps[dk];
     const isToday = dk===today;
-    const sorted = [...gRows].sort((a,b)=>statusRank(a.status)-statusRank(b.status));
+    const sorted = sortedRows([...gRows]);
     const rowsHTML = sorted.map(r => {
       const gi = rows.indexOf(r);
       const cls = SCLS[r.status]||'';
@@ -1027,7 +1132,16 @@ function render() {
       </div>
       <div class="table-wrap"><div style="overflow-x:auto">
         <table>
-          <thead><tr><th>ลำดับ</th><th>ชื่องาน</th><th>Order</th><th>กระบวนการ</th><th>วันที่นัด</th><th>เวลานัด</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th></th></tr></thead>
+          <thead><tr>
+            <th>ลำดับ</th>
+            <th onclick="setSort('name')" style="cursor:pointer;user-select:none">ชื่องาน ${si('name')}</th>
+            <th onclick="setSort('order')" style="cursor:pointer;user-select:none">Order ${si('order')}</th>
+            <th>กระบวนการ</th>
+            <th onclick="setSort('date')" style="cursor:pointer;user-select:none">วันที่นัด ${si('date')}</th>
+            <th onclick="setSort('time')" style="cursor:pointer;user-select:none">เวลานัด ${si('time')}</th>
+            <th onclick="setSort('status')" style="cursor:pointer;user-select:none">สถานะ ${si('status')}</th>
+            <th>ผู้รับผิดชอบ</th><th></th>
+          </tr></thead>
           <tbody>${rowsHTML}</tbody>
         </table>
       </div></div>
@@ -1448,8 +1562,11 @@ function openAdd(){
   const _n=new Date(); document.getElementById('f-date').value=`${_n.getFullYear()}-${String(_n.getMonth()+1).padStart(2,'0')}-${String(_n.getDate()).padStart(2,'0')}`;
   document.getElementById('f-status').value=''; styleSel(document.getElementById('f-status'));
   selProcs={}; selPersons={};
+  // โหลด draft ถ้ามี
+  const hasDraft = loadDraft();
   openModal('adminModal');
   renderProcPicker();
+  if(hasDraft) toast('📝 โหลด draft ที่ค้างไว้แล้ว','success');
 }
 function openEdit(i){
   const r=rows[i];
@@ -1488,6 +1605,7 @@ async function saveAdmin(){
   // ── Optimistic: อัปเดต + ปิด modal ทันที ──
   if(idx==='') rows.push(d); else rows[parseInt(idx)]=d;
   closeModal('adminModal'); render(); stats();
+  clearDraft();
   toast(idx===''?'✅ เพิ่มงานแล้ว':'✅ แก้ไขแล้ว','success');
   // ── Sync Sheets ใน background ──
   pushSheet(idx===''?'append':'update',d,idx!==''?parseInt(idx):null).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
@@ -1516,16 +1634,23 @@ async function saveOp(){
   if(!status){ toast('⚠ กรุณาเลือกสถานะ','error'); return; }
   const idx=parseInt(document.getElementById('op-idx').value);
   const detail=document.getElementById('op-detail').value.trim();
+  const oldStatus = rows[idx].status;
+  const rowName   = rows[idx].name;
   // ── Optimistic: อัปเดต + ปิด modal ทันที ──
   rows[idx].status=status; rows[idx].detail=detail;
   closeModal('opModal'); render(); stats();
   toast('✅ อัปเดตสถานะแล้ว','success');
-  // ── Sync Sheets ใน background ──
+  // ── Audit log + Sync Sheets ใน background ──
+  pushAudit(rowName, oldStatus, status, detail);
   pushSheet('update',rows[idx],idx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
 }
 
 // ─── HELPERS ──────────────────────────────
-function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>initSwipeClose(id));
+}
 function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
 function styleSel(s){
   s.className='fselect';
