@@ -296,8 +296,7 @@ td{padding:.77rem .9rem;vertical-align:middle}
 .pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px}
 .uchip{display:inline-flex;align-items:center;padding:.14rem .42rem;border-radius:20px;font-size:.69rem;font-weight:700;margin:1px;border:1.5px solid}
 /* light theme: override inline colors to solid bg + white text */
-[data-theme="light"] .pchip{filter:none!important;color:#fff!important;opacity:1}
-[data-theme="light"] .uchip{filter:none!important;color:#fff!important;border-color:transparent!important;opacity:1}
+/* light theme chip colors handled entirely by JS (renderProcessChips / renderPersonChips) */
 .chips-wrap{display:flex;flex-wrap:wrap;max-width:200px}
 
 /* SKELETON LOADING */
@@ -1661,7 +1660,7 @@ function renderPersonChips(personsStr, maxShow=2) {
     const txt    = light ? contrastText(col) : col;
     const hidden = i >= maxShow;
     chips += `<span class="uchip${hidden?' uchip-extra_'+uid:''}"
-      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${esc(n)}</span>`;
+      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${n==='ALL'?'ALL':'คุณ'+esc(n)}</span>`;
   });
   const rest = names.length - maxShow;
   const moreBtn = rest > 0
