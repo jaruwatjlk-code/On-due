@@ -299,7 +299,16 @@ input[type="time"].finput,input[type="date"].finput{color-scheme:dark}
 .free-group-title{font-size:.7rem;font-weight:700;color:var(--text3);padding:.5rem .7rem .2rem;background:var(--surface2)}
 
 /* TABLE display chips */
-.pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px}
+.pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px;cursor:pointer;user-select:none;transition:opacity .18s,box-shadow .18s;position:relative;overflow:visible}
+/* chip states */
+.pchip.cs-wip{opacity:1;isolation:isolate}
+.pchip.cs-wip::before{content:'';position:absolute;inset:-3px;border-radius:7px;border:2px solid currentColor;animation:chip-pulse 1.5s ease-out infinite;pointer-events:none;z-index:0}
+.pchip.cs-wait{opacity:.5;outline:1.5px solid currentColor;outline-offset:1px}
+.pchip.cs-done-hidden{opacity:0;pointer-events:none;width:0;padding:0;margin:0;overflow:hidden}
+/* · dot for done */
+.pchip-dot{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;font-size:.75rem;line-height:1;cursor:pointer;opacity:.28;margin:1px;transition:opacity .15s;user-select:none;vertical-align:middle}
+.pchip-dot:hover{opacity:.55}
+@keyframes chip-pulse{0%{opacity:.8;transform:scale(1)}70%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
 .uchip{display:inline-flex;align-items:center;padding:.14rem .42rem;border-radius:20px;font-size:.69rem;font-weight:700;margin:1px;border:1.5px solid}
 /* light theme: override inline colors to solid bg + white text */
 /* light theme chip colors handled entirely by JS (renderProcessChips / renderPersonChips) */
@@ -452,138 +461,6 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
   .frow{grid-template-columns:1fr}
 }
 
-
-/* ══ ROUTE VIEW ══════════════════════════════════════ */
-@keyframes rv-pulse{0%{transform:scale(1);opacity:.85}65%{transform:scale(1.65);opacity:0}100%{transform:scale(1.65);opacity:0}}
-@keyframes rv-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes rv-fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-/* filter row */
-.rv-bar{display:flex;align-items:center;gap:.38rem;flex-wrap:wrap;margin-bottom:.8rem}
-.rv-lbl{font-size:.6rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;flex-shrink:0}
-.rv-chip{padding:.2rem .56rem;border-radius:20px;font-size:.71rem;font-weight:600;border:1.5px solid var(--border);color:var(--text3);background:transparent;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;user-select:none}
-.rv-chip:hover{border-color:var(--accent);color:var(--accent)}
-.rv-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.rv-chip.oc.on{background:var(--red);border-color:var(--red)}
-.rv-sep{width:1px;height:14px;background:var(--border);flex-shrink:0;margin:0 .1rem}
-.rv-srch{padding:.27rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.76rem;outline:none;width:150px;font-family:inherit;transition:border-color .14s}
-.rv-srch:focus{border-color:var(--accent)}
-
-/* date group */
-.rv-dg{margin-bottom:1.1rem}
-.rv-dg-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem}
-.rv-dg-dt{font-size:.7rem;font-weight:700;color:var(--text2);white-space:nowrap}
-.rv-dg-line{flex:1;height:1px;background:var(--border)}
-.rv-dg-n{font-size:.65rem;color:var(--text3);white-space:nowrap}
-.rv-today{background:var(--accent);color:#fff;border-radius:4px;padding:.02rem .28rem;font-size:.56rem;font-weight:700;margin-left:.22rem;vertical-align:middle}
-
-/* card */
-.rv-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:.68rem .9rem .6rem;margin-bottom:.4rem;
-  cursor:pointer;position:relative;overflow:hidden;
-  animation:rv-fadein .22s ease both;
-  transition:transform .16s,box-shadow .16s,border-color .13s;
-}
-.rv-card:hover{transform:translateY(-2px);box-shadow:0 7px 26px var(--shadow);border-color:var(--border2)}
-.rv-card.ov{border-left:3px solid var(--red)}
-
-/* card top */
-.rv-top{display:flex;align-items:center;gap:.45rem;margin-bottom:.5rem;flex-wrap:wrap}
-.rv-num{font-size:.59rem;color:var(--text3);font-weight:700;flex-shrink:0}
-.rv-name{font-weight:800;font-size:.88rem;flex:1;min-width:60px}
-.rv-ord{font-size:.67rem;color:var(--text2);font-weight:600;white-space:nowrap}
-.rv-rgt{display:flex;align-items:center;gap:.28rem;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
-.rv-stat{padding:.14rem .48rem;border-radius:20px;font-size:.66rem;font-weight:700;white-space:nowrap}
-.rv-tm{font-size:.64rem;color:var(--text3);white-space:nowrap}
-.rv-od{font-size:.57rem;font-weight:700;color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);border-radius:20px;padding:.06rem .32rem}
-
-/* route track */
-.rv-track{display:flex;align-items:flex-end;overflow-x:auto;scrollbar-width:none;padding:.05rem 0 .28rem;margin:.02rem 0}
-.rv-track::-webkit-scrollbar{display:none}
-.rv-nwrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-
-/* arrow */
-.rv-arrow{
-  font-size:0;line-height:0;color:transparent;
-  width:0;height:0;
-  border-left:6px solid transparent;
-  border-right:6px solid transparent;
-  border-top:0;
-  border-bottom:8px solid transparent;
-  margin-bottom:.15rem;transition:opacity .2s;opacity:0;
-  /* will be colored via style */
-}
-.rv-arrow.on{opacity:1;animation:rv-bob .85s ease-in-out infinite}
-
-/* node — perfect 34×34 circle always */
-.rv-node{
-  width:34px;height:34px;min-width:34px;min-height:34px;
-  border-radius:50%;border:2.5px solid;
-  display:flex;align-items:center;justify-content:center;
-  font-size:.54rem;font-weight:800;letter-spacing:-.02em;
-  flex-shrink:0;cursor:pointer;
-  transition:transform .14s,opacity .18s;
-  position:relative;
-}
-.rv-node:hover{transform:scale(1.13);z-index:5}
-/* pulse ring on active node */
-.rv-node.act::after{
-  content:'';position:absolute;inset:-4px;border-radius:50%;
-  border:2.5px solid currentColor;opacity:0;
-  animation:rv-pulse 1.55s ease-out infinite;
-}
-/* state opacities */
-.rv-node.dn{opacity:.22}   /* done — จาง */
-.rv-node.sk{opacity:.15}   /* skip — จางมาก */
-.rv-node.nr{opacity:.13;filter:grayscale(.6)}  /* ไม่เกี่ยว — จางมากสุด */
-.rv-node.pd{opacity:.22}   /* pending (ยังไม่ถึง) */
-.rv-node.wt{opacity:.9}    /* รองาน — ขอบสี ไม่มี fill */
-
-/* person mini dots */
-.rv-dots{display:flex;gap:.1rem;flex-wrap:wrap;justify-content:center;margin-top:.18rem;max-width:46px;min-height:16px}
-.rv-dot{width:14px;height:14px;border-radius:50%;font-size:.4rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(0,0,0,.15)}
-
-/* connector */
-.rv-conn{width:9px;min-width:9px;height:2.5px;flex-shrink:0;border-radius:1px;margin-bottom:22px;transition:background .25s}
-
-/* progress chips */
-.rv-prog{display:flex;align-items:center;gap:.2rem;flex-wrap:wrap;margin:.3rem 0 .05rem}
-.rv-plbl{font-size:.58rem;font-weight:700;color:var(--text3);white-space:nowrap}
-.rv-pch{display:inline-flex;align-items:center;padding:.05rem .28rem;border-radius:5px;font-size:.57rem;font-weight:800;border:1px solid;white-space:nowrap}
-.rv-pch-r{background:var(--surface2);color:var(--text3);border-color:var(--border)}
-.rv-pch-s{opacity:.5;text-decoration:line-through;background:transparent;color:var(--text3);border-color:var(--border)}
-
-/* card bottom */
-.rv-bot{display:flex;align-items:center;gap:.38rem;margin-top:.4rem;flex-wrap:wrap}
-.rv-pch2{display:inline-flex;align-items:center;padding:.07rem .32rem;border-radius:20px;font-size:.57rem;font-weight:700;border:1px solid;white-space:nowrap}
-.rv-det{font-size:.62rem;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* modal */
-.rv-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:700;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .18s}
-.rv-ov.open{opacity:1;pointer-events:all}
-.rv-modal{background:var(--surface);border:1px solid var(--border2,#3d4260);border-radius:16px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto;transform:translateY(10px);transition:transform .22s cubic-bezier(.34,1.4,.64,1)}
-.rv-ov.open .rv-modal{transform:translateY(0)}
-.rv-modal::before{content:'';display:block;width:32px;height:3px;background:var(--border2);border-radius:2px;margin:.44rem auto .05rem}
-.rv-mhd{display:flex;align-items:center;gap:.5rem;padding:.65rem 1rem .55rem;border-bottom:1px solid var(--border)}
-.rv-mttl{font-weight:800;font-size:.86rem;flex:1;display:flex;align-items:center;gap:.45rem}
-.rv-mcls{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.95rem;padding:.1rem .22rem;border-radius:5px;line-height:1;font-family:inherit}
-.rv-mcls:hover{color:var(--text)}
-.rv-proc-tabs{display:flex;gap:.28rem;flex-wrap:wrap;padding:.35rem 1rem;border-bottom:1px solid var(--border)}
-.rv-mbdy{padding:.72rem 1rem}
-.rv-mfld{margin-bottom:.72rem}
-.rv-mlbl{font-size:.62rem;font-weight:700;color:var(--text3);margin-bottom:.26rem;text-transform:uppercase;letter-spacing:.05em;display:block}
-.rv-minp,.rv-mta{width:100%;padding:.4rem .65rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.8rem;outline:none;font-family:inherit;transition:border-color .14s;appearance:none}
-.rv-minp:focus,.rv-mta:focus{border-color:var(--accent)}
-.rv-mta{resize:vertical;min-height:58px;line-height:1.5}
-.rv-sbrow{display:flex;gap:.35rem}
-.rv-sb{flex:1;padding:.34rem .4rem;border-radius:8px;font-size:.71rem;font-weight:700;cursor:pointer;border:2px solid;background:transparent;font-family:inherit;transition:all .13s;text-align:center}
-.rv-sb.on{outline:3px solid rgba(255,255,255,.35);outline-offset:2px}
-.rv-mft{display:flex;justify-content:flex-end;gap:.38rem;padding:.55rem 1rem .8rem;border-top:1px solid var(--border)}
-.rv-btn{padding:.35rem .78rem;border-radius:8px;font-size:.76rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .12s}
-.rv-btn-p{background:var(--accent);color:#fff}
-.rv-btn-p:hover{opacity:.87}
-.rv-btn-s{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
 </style>
 </head>
@@ -753,7 +630,6 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
   <div class="side-title">เมนู</div>
   <button class="side-item active" id="side-jobs" onclick="showPage('jobs')"><span class="side-icon">📋</span>รายการงาน</button>
   <button class="side-item" id="side-kpi" onclick="showPage('kpi')"><span class="side-icon">📊</span>KPI Summary</button>
-  <button class="side-item" id="side-route" onclick="showPage('route')"><span class="side-icon">🚉</span>Route View</button>
   <div style="flex:1"></div>
   <div style="border-top:1px solid var(--border);padding:.6rem .8rem">
     <button class="side-item" id="sideSwitch" onclick="closeSideMenu();reqAdmin()"><span class="side-icon">🔑</span>เข้าสู่ Admin</button>
@@ -847,15 +723,6 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
     <div id="kpiContent"></div>
   </div>
 
-  <!-- PAGE: ROUTE VIEW -->
-  <div class="page" id="page-route">
-    <div class="page-header">
-      <div><div class="page-title">🚉 Route View</div><div class="page-sub">ติดตาม Process แต่ละงาน — realtime</div></div>
-    </div>
-    <div id="routeViewContent">
-      <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">กำลังโหลด...</div></div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -874,7 +741,8 @@ function toggleTheme() {
 }
 
 // ─── CONFIG ───────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61n5MDBARadvY-whp8ja1hgYCQiekeSARVh9MfYzKaG0oLB3JzSWiprT0b5W1WhiH6Q/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyI2CCGEwxfVrnSjjan8Fnwg-kh44MzYRuVl7oxJFLlsyszBh8d87ME-CvKDEOT8LVtfQ/exec';
+const PROC_URL   = 'https://script.google.com/macros/s/AKfycbx1xq_fCCTvKkJnx3sBI3eWXaJp-B1cjhFumAg0bac0pX5n9GswDZkEMrynkf4ln22Apw/exec';
 
 // กระบวนการหลักและผู้รับผิดชอบ (เรียงตามลำดับที่กำหนด)
 const PROCESS_DATA = [
@@ -891,7 +759,6 @@ const PROCESS_DATA = [
   { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
   { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
   { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
-  { id:'GP',     color:'#521721', bg:'rgba(82,23,33,.15)',   persons:['น้อง','มด'] }, 
   { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
   { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
 ];
@@ -956,7 +823,7 @@ window.addEventListener('DOMContentLoaded', () => {
   showSkeleton(); // ขึ้น skeleton ทันทีก่อน async fetch เริ่ม
   requestAnimationFrame(()=>loadData());
   // re-render ทุก 1 นาที เพื่อ update overdue status อัตโนมัติ
-  setInterval(()=>{ if(rows.length>0){ render(); stats(); } }, 60000);
+  window._refreshTimer = setInterval(()=>{ if(rows.length>0 && !document.querySelector('.overlay.open')){ render(); stats(); } }, 60000);
   // คำนวณ sticky offset หลัง DOM render
   setTimeout(updateStickyOffsets, 200);
 });
@@ -1020,7 +887,11 @@ async function loadData() {
 
   try {
     console.log('[loadData] fetching...');
-    const res  = await fetchWithTimeout(SCRIPT_URL + '?action=get', 15000);
+    // fetch rows + process states พร้อมกัน
+    const [res, psRes] = await Promise.all([
+      fetchWithTimeout(SCRIPT_URL + '?action=get', 15000),
+      fetchWithTimeout(PROC_URL + '?action=get', 15000).catch(()=>null),
+    ]);
     console.log('[loadData] response status:', res.status);
     const json = await res.json();
     console.log('[loadData] json keys:', Object.keys(json), 'data length:', json.data?.length);
@@ -1037,6 +908,23 @@ async function loadData() {
         persons: (r[8]||'').toString().trim(),
       }));
       console.log('[loadData] rows loaded:', rows.length);
+    }
+    // โหลด process states เข้า chipStates
+    if (psRes) {
+      try {
+        const psJson = await psRes.json();
+        if (Array.isArray(psJson.data)) {
+          psJson.data.forEach(item => {
+            const jobKey = item.job_key || item[0];
+            const proc   = item.process  || item[1];
+            const st     = item.status   || item[2];
+            if (!jobKey || !proc) return;
+            if (!chipStates[jobKey]) chipStates[jobKey] = {};
+            chipStates[jobKey][proc] = st || null;
+          });
+          console.log('[loadData] process states loaded:', psJson.data.length);
+        }
+      } catch(e) { console.warn('[loadData] process states parse error', e); }
     }
     document.getElementById('lastSync').textContent =
       'ซิงค์ล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
@@ -1262,7 +1150,7 @@ function render() {
         <td class="td-num">${esc(r.num)||'—'}</td>
         <td class="td-name">${esc(r.name)}${overdue?'<span class="overdue-tag">⚠ เกินกำหนด</span>':''}</td>
         <td class="td-mono">${r.order?Number(r.order).toLocaleString():'—'}</td>
-        <td>${renderProcessChips(r.process)}</td>
+        <td>${renderProcessChips(r.process, gi)}</td>
         <td class="td-mono">${fmtDMY(r.date)}</td>
         <td class="td-mono">${r.time?`<span style="color:${overdue?'var(--red)':''};font-weight:${overdue?700:400}">${esc(r.time)}</span>`:'—'}</td>
         <td><span class="sbadge ${cls}">${esc(lbl)}</span></td>
@@ -1434,7 +1322,7 @@ function openRowDetail(i, e) {
   document.getElementById('rd-date').textContent = fmtDMY(r.date)||'—';
   document.getElementById('rd-time').textContent = r.time||'—';
   document.getElementById('rd-status').innerHTML = r.status ? `<span class="sbadge ${cls}">${esc(lbl)}</span>` : '—';
-  document.getElementById('rd-process').innerHTML = renderProcessChips(r.process);
+  document.getElementById('rd-process').innerHTML = renderProcessChips(r.process, i);
   document.getElementById('rd-persons').innerHTML = renderPersonChips(r.persons);
   document.getElementById('rd-detail').textContent = r.detail||'—';
 
@@ -1443,11 +1331,31 @@ function openRowDetail(i, e) {
 
   if (role === 'admin') {
     sec.style.display = 'block';
-    sec.innerHTML = `<div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.8rem;border-top:1px solid var(--border)">
-      <button class="btn btn-secondary btn-sm" onclick="closeModal('rowDetailModal');openEdit(${i})">✏ แก้ไข</button>
-      <button class="btn btn-danger btn-sm" onclick="closeModal('rowDetailModal');delRow(${i})">🗑 ลบ</button>
+    const procIdsA = (r.process||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const csA = getCS(r);
+    const procRowsA = procIdsA.map(pid => {
+      const pd = PROCESS_DATA.find(p=>p.id===pid);
+      const col = pd ? pd.color : '#64748b';
+      const bg  = pd ? pd.bg : 'rgba(100,116,139,.15)';
+      const cur = csA[pid]||'';
+      return `<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem">
+        <span style="min-width:36px;padding:.12rem .42rem;border-radius:5px;font-size:.7rem;font-weight:800;background:${bg};color:${col}">${pid}</span>
+        <select class="fselect rd-proc-sel" data-proc="${pid}" onchange="styleSel(this)" style="flex:1;font-size:.8rem;padding:.35rem .6rem">
+          <option value="">— สถานะ —</option>
+          <option value="wip" ${cur==='wip'?'selected':''}>🟡 กำลังทำ</option>
+          <option value="wait" ${cur==='wait'?'selected':''}>⏸ รองาน</option>
+          <option value="done" ${cur==='done'?'selected':''}>✅ เสร็จ</option>
+        </select>
+      </div>`;
+    }).join('');
+    sec.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
+      ${procIdsA.length ? `<div class="fg"><label class="flbl">สถานะ Process</label>${procRowsA}</div>` : ''}
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.6rem">
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('rowDetailModal');openEdit(${i})">✏ แก้ไข</button>
+        <button class="btn btn-danger btn-sm" onclick="closeModal('rowDetailModal');delRow(${i})">🗑 ลบ</button>
+      </div>
     </div>`;
-    saveBtn.style.display = 'none';
+    saveBtn.style.display = procIdsA.length ? 'inline-flex' : 'none';
   } else if (locked) {
     sec.style.display = 'block';
     sec.innerHTML = `<div style="text-align:center;padding:.75rem;color:var(--text3);font-size:.8rem">🔒 ไม่สามารถแก้ไขข้อมูลย้อนหลังเกิน 3 วัน</div>`;
@@ -1455,8 +1363,30 @@ function openRowDetail(i, e) {
   } else {
     // ผู้ใช้งาน แก้ไขสถานะ+รายละเอียดได้
     sec.style.display = 'block';
+    // process dropdowns
+    const procIds = (r.process||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const cs = getCS(r);
+    const procRows = procIds.map(pid => {
+      const pd = PROCESS_DATA.find(p=>p.id===pid);
+      const col = pd ? pd.color : '#64748b';
+      const bg  = pd ? pd.bg : 'rgba(100,116,139,.15)';
+      const cur = cs[pid]||'';
+      return `<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem">
+        <span style="min-width:36px;padding:.12rem .42rem;border-radius:5px;font-size:.7rem;font-weight:800;background:${bg};color:${col}">${pid}</span>
+        <select class="fselect rd-proc-sel" data-proc="${pid}" onchange="styleSel(this)" style="flex:1;font-size:.8rem;padding:.35rem .6rem">
+          <option value="">— สถานะ —</option>
+          <option value="wip" ${cur==='wip'?'selected':''}>🟡 กำลังทำ</option>
+          <option value="wait" ${cur==='wait'?'selected':''}>⏸ รองาน</option>
+          <option value="done" ${cur==='done'?'selected':''}>✅ เสร็จ</option>
+        </select>
+      </div>`;
+    }).join('');
     sec.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
-      <div class="fg"><label class="flbl">สถานะ</label>
+      ${procIds.length ? `<div class="fg">
+        <label class="flbl">สถานะ Process</label>
+        ${procRows}
+      </div>` : ''}
+      <div class="fg"><label class="flbl">สถานะงาน</label>
         <select class="fselect" id="rd-status-sel" onchange="styleSel(this)">
           <option value="">— เลือกสถานะ —</option>
           <option value="ส่งครบ">ส่งครบ</option>
@@ -1478,16 +1408,50 @@ function openRowDetail(i, e) {
   openModal('rowDetailModal');
 }
 async function saveRowDetail() {
-  const selEl = document.getElementById('rd-status-sel');
-  const detEl = document.getElementById('rd-detail-input');
-  if (!selEl) return;
-  const status = selEl.value;
-  if (!status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
+  // snapshot ทุกค่าก่อน DOM เปลี่ยนแปลง
+  const selEl  = document.getElementById('rd-status-sel');
+  const detEl  = document.getElementById('rd-detail-input');
+  const opSec  = document.getElementById('rd-op-section');
+  const status = selEl ? selEl.value : rows[rdIdx].status;
   const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
-  rows[rdIdx].status = status; rows[rdIdx].detail = detail;
-  closeModal('rowDetailModal'); render(); stats();
-  toast('✅ อัปเดตสถานะแล้ว','success');
-  pushSheet('update', rows[rdIdx], rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
+  if (selEl && !status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
+
+  // snapshot process dropdowns
+  const procData = [];
+  if (opSec) {
+    opSec.querySelectorAll('.rd-proc-sel').forEach(function(sel) {
+      var pid = sel.getAttribute('data-proc');
+      var st  = sel.value;
+      if (pid) procData.push([pid, st]);
+    });
+  }
+
+  // อัปเดต local state
+  const r  = rows[rdIdx];
+  const cs = getCS(r);
+  procData.forEach(function(item) {
+    if (item[1]) cs[item[0]] = item[1]; else delete cs[item[0]];
+  });
+  rows[rdIdx].status = status;
+  rows[rdIdx].detail = detail;
+
+  // ปิด modal และ re-render
+  closeModal('rowDetailModal');
+  render(); stats();
+  toast('✅ อัปเดตแล้ว', 'success');
+
+  // push ไป GS
+  var jobKey = csKey(r);
+  pushSheet('update', rows[rdIdx], rdIdx).catch(function() { toast('⚠ Sync ไม่สำเร็จ','error'); });
+  procData.forEach(function(item) {
+    var pid = item[0];
+    var st  = item[1];
+    fetch(PROC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'upsert', job_key: jobKey, process: pid, status: st })
+    }).catch(function() {});
+  });
 }
 function reqAdmin(){
   document.getElementById('pwInput').value='';
@@ -1528,7 +1492,6 @@ function showPage(p) {
   document.getElementById('side-'+p).classList.add('active');
   closeSideMenu();
   if(p==='kpi') renderKpi('all');
-  if(p==='route') renderRouteView();
 }
 function toggleSideMenu(){
   document.getElementById('sideMenu').classList.toggle('open');
@@ -1934,18 +1897,50 @@ function contrastText(hex) {
 
 function isLight(){ return currentTheme==='light'; }
 
-function renderProcessChips(processStr) {
+// chipStates: rowKey → { procId: 'wip'|'wait'|'done'|null }
+const chipStates = {};
+function csKey(r){ return (r.name||''); }
+function getCS(r){ return chipStates[csKey(r)] || (chipStates[csKey(r)]={}); }
+
+function cycleChip(rowIdx, procId, event){
+  event.stopPropagation();
+  const r = rows[rowIdx]; if(!r) return;
+  const cs = getCS(r);
+  const cur = cs[procId]||null;
+  // กด chip ในตาราง: ถ้า done → reset เท่านั้น, ถ้าอื่นๆ → ไม่เปลี่ยน (ตั้งได้ผ่าน modal)
+  if(cur !== 'done') return;
+  cs[procId] = null;
+  const cell = event.currentTarget.closest('.chips-wrap');
+  if(cell) cell.outerHTML = renderProcessChips(r.process, rowIdx);
+  else render();
+}
+
+function renderProcessChips(processStr, rowIdx) {
   if (!processStr) return '<span style="color:var(--text3)">—</span>';
   const ids = processStr.split(',').map(s=>s.trim()).filter(Boolean);
   if (!ids.length) return '<span style="color:var(--text3)">—</span>';
   const light = isLight();
-  return '<div class="chips-wrap">' + ids.map(id => {
+  const r = typeof rowIdx==='number' ? rows[rowIdx] : null;
+  const cs = r ? getCS(r) : {};
+  const chips = ids.map(id => {
     const pd  = PROCESS_DATA.find(p=>p.id===id);
     const col = pd ? pd.color : '#64748b';
     const bg  = light ? col : (pd ? pd.bg : 'var(--surface2)');
     const txt = light ? contrastText(col) : col;
-    return `<span class="pchip" style="background:${bg};color:${txt}">${esc(id)}</span>`;
-  }).join('') + '</div>';
+    const st  = cs[id]||null;
+    const clickAttr = typeof rowIdx==='number'
+      ? `onclick="cycleChip(${rowIdx},'${id}',event)"`
+      : '';
+    if (st === 'done') {
+      // เสร็จแล้ว → แสดงเป็น · จางๆ กดได้เพื่อ reset
+      return `<span class="pchip-dot" style="color:${col};background:${col}22" ${clickAttr} title="✅ ${id} เสร็จ — กดเพื่อ reset">·</span>`;
+    }
+    const stCls = st ? ' cs-'+st : '';
+    const titleMap = {wip:'🟡 กำลังทำ — กดเพื่อเปลี่ยน',wait:'⏸ รองาน — กดเพื่อเปลี่ยน'};
+    const tip = titleMap[st]||'กดเพื่อตั้งสถานะ';
+    return `<span class="pchip${stCls}" style="background:${bg};color:${txt};${stCls?'':'opacity:.85'}" ${clickAttr} title="${tip}">${esc(id)}</span>`;
+  });
+  return '<div class="chips-wrap">' + chips.join('') + '</div>';
 }
 
 function renderPersonChips(personsStr, maxShow=2) {
@@ -2094,388 +2089,6 @@ function toast(msg,type='success'){
 
 
 
-// ══════════════════════════════════════════════════════
-//  ROUTE VIEW — v2
-// ══════════════════════════════════════════════════════
-const RV_ROUTE = ['PR','SP','CA','LA','DC','ST','CK','SG','MGL','GP,'GL'];
-
-// map process id → color (จาก PROCESS_DATA ถ้ามี ไม่งั้น fallback)
-function rvCol(pid){
-  const pd = PROCESS_DATA.find(p=>p.id===pid);
-  if(pd) return pd.color;
-  return {PR:'#f97316',SP:'#a855f7',CA:'#10b981',LA:'#22d3ee',DC:'#3b82f6',
-          ST:'#6366f1',CK:'#ec4899',SG:'#06b6d4',MGL:'#f43f5e',GP:'#521721',GL:'#ef4444'}[pid]||'#64748b';
-}
-
-// contrast text color
-function rvCT(hex){
-  try{
-    const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
-    const tL=c=>c<=.03928?c/12.92:((c+.055)/1.055)**2.4;
-    return .2126*tL(r)+.7152*tL(g)+.0722*tL(b)>.45?'#111':'#fff';
-  }catch(e){return'#fff';}
-}
-
-function rvIsOD(r){
-  if((r.status||'')==='กำลังดำเนินการ'===false) return false;
-  if(r.status!=='กำลังดำเนินการ') return false;
-  const[y,m,d]=(r.date||'').split('-').map(Number);
-  if(!y) return false;
-  const hm=(r.time||'').match(/(\d+):(\d+)/);
-  return new Date()>new Date(y,m-1,d,hm?+hm[1]:23,hm?+hm[2]:59);
-}
-
-function rvToday(){
-  const n=new Date();
-  return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
-}
-
-function rvFmtDate(ds){
-  if(!ds)return'—';
-  const[y,m,d]=ds.split('-').map(Number);
-  const dt=new Date(y,m-1,d);
-  const days=['อา','จ','อ','พ','พฤ','ศ','ส'];
-  const mons=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  return`${days[dt.getDay()]} ${d} ${mons[m-1]} ${y+543}`;
-}
-
-function rvSCls(s){
-  return{
-    'ส่งครบ':'s-done','แบ่งส่ง':'s-partial',
-    'ส่งไม่ได้':'s-fail','กำลังดำเนินการ':'s-wip','HOLD':'s-hold'
-  }[s]||'';
-}
-
-// ── per-card procData store (local edits) ──────────────
-// key = rowKey, value = { procId: {status,time,comment} }
-const rvPD = {};
-function rvGetPD(k){ return rvPD[k]||(rvPD[k]={}); }
-
-// row key = num+name (unique enough for a single session)
-function rvKey(r){ return (r.num||'')+'-'+(r.name||''); }
-
-// derive which processes are "active" for this row
-function rvActive(r){
-  const pd=rvGetPD(rvKey(r));
-  const wip=RV_ROUTE.filter(s=>pd[s]?.status==='wip');
-  if(wip.length) return wip;
-  // fallback: from row.process field
-  return (r.process||'').split(',').map(s=>s.trim()).filter(Boolean)
-    .filter(p=>RV_ROUTE.includes(p));
-}
-
-// state variables
-let rvFS='', rvSrch='', rvStation=null;
-
-// ── render one job's route track ──────────────────────
-function rvTrack(r){
-  const rk   = rvKey(r);
-  const pd   = rvGetPD(rk);
-  const aps  = rvActive(r);           // processes currently active/wip
-  // selected processes from row data (highlight these)
-  const selSet = new Set(
-    (r.process||'').split(',').map(s=>s.trim()).filter(s=>RV_ROUTE.includes(s))
-  );
-  const isDone = r.status==='ส่งครบ';
-
-  // frontier = highest route index that has been touched (done or wip)
-  let frontier=-1;
-  RV_ROUTE.forEach((s,i)=>{
-    if(pd[s]?.status) frontier=Math.max(frontier,i);
-  });
-  aps.forEach(p=>{ const i=RV_ROUTE.indexOf(p); if(i>frontier) frontier=i; });
-
-  let h='<div class="rv-track">';
-  RV_ROUTE.forEach((s,i)=>{
-    const col   = rvCol(s);
-    const pst   = pd[s]?.status;         // done / wip / skip / undefined
-    const isAct = aps.includes(s);       // currently active
-    const inSel = selSet.has(s);         // in job's process list
-
-    let cls='rv-node', bg, bc, fc, shadow='', arrowOn=false;
-
-    if(isDone){
-      // ส่งครบ — ทุก node จางเหมือนกัน
-      bg=col+'14'; bc=col+'28'; fc=col+'50'; cls+=' dn';
-    } else if(pst==='skip'){
-      bg='transparent'; bc=col+'15'; fc=col+'20'; cls+=' sk';
-    } else if(pst==='done'){
-      bg='#22c55e15'; bc='#22c55e38'; fc='#22c55e70'; cls+=' dn';
-    } else if(pst==='wip' || isAct){
-      // ✨ กำลังทำ — สว่าง + pulse + ลูกศร
-      bg=col; bc=col; fc=rvCT(col); cls+=' act';
-      shadow=`0 0 0 3px rgba(255,255,255,.08),0 0 14px ${col}80`;
-      arrowOn=true;
-    } else if(pst==='wait'){
-      // ⏸ รองาน — ขอบสีเต็ม ไม่มี fill ไม่ pulse ไม่ลูกศร
-      bg='transparent'; bc=col; fc=col; cls+=' wt';
-    } else if(!inSel){
-      // ❌ ไม่เกี่ยวกับงานนี้เลย — จางมากสุด
-      bg='transparent'; bc=col+'12'; fc=col+'18'; cls+=' nr';
-    } else if(i>frontier){
-      // รอ — ยังไม่ถึง แต่อยู่ใน process list
-      bg='transparent'; bc=col+'30'; fc=col+'38'; cls+=' pd';
-    } else {
-      // ผ่านมาแล้ว (frontier ผ่าน ยังไม่มี procData)
-      bg=col+'13'; bc=col+'28'; fc=col+'42'; cls+=' dn';
-    }
-
-    // person dots under node
-    const procDef = PROCESS_DATA.find(p=>p.id===s);
-    const procPersons = procDef?.persons||[];
-    const jobPersons  = (r.persons||'').split(',').map(x=>x.trim()).filter(Boolean);
-    const matched     = jobPersons.filter(p=>procPersons.includes(p));
-    const dots = matched.slice(0,3).map(p=>{
-      const c=PERSON_COLORS[p]||'#64748b';
-      return`<div class="rv-dot" style="background:${c};color:${rvCT(c)}" title="${p}">${p.slice(0,1)}</div>`;
-    }).join('');
-
-    const tip = [
-      s,
-      pd[s]?.time   ? '⏰'+pd[s].time        : '',
-      pd[s]?.comment? '💬'+pd[s].comment.slice(0,25): '',
-    ].filter(Boolean).join(' | ') || 'คลิกเพื่อบันทึก';
-
-    h+=`<div class="rv-nwrap">
-      <div class="rv-arrow${arrowOn?' on':''}" style="${arrowOn?`border-bottom-color:${col}`:''}" title="${tip}"></div>
-      <div class="${cls}" style="background:${bg};border-color:${bc};color:${fc};box-shadow:${shadow}"
-        onclick="event.stopPropagation();rvOpenModal('${rk}','${s}')"
-        title="${tip}">${s}</div>
-      <div class="rv-dots">${dots}</div>
-    </div>`;
-
-    if(i<RV_ROUTE.length-1){
-      // connector color: lit if both sides are past/active
-      const nextActOrDone = pd[RV_ROUTE[i+1]]?.status==='done'||pd[RV_ROUTE[i+1]]?.status==='wip'||aps.includes(RV_ROUTE[i+1]);
-      const lineCol = (!isDone&&(pst==='done'||i<frontier)&&(i+1<=frontier||nextActOrDone)) ? col+'55' : 'var(--border)';
-      h+=`<div class="rv-conn" style="background:${lineCol}"></div>`;
-    }
-  });
-  h+='</div>';
-  return h;
-}
-
-// ── progress chips (no %) ──────────────────────────────
-function rvProg(r){
-  const rk=rvKey(r);const pd=rvGetPD(rk);
-  if(r.status==='ส่งครบ') return`<div class="rv-prog"><span style="font-size:.64rem;color:#22c55e;font-weight:700">✅ ครบทุก Process</span></div>`;
-  const aps=rvActive(r);
-  const active=[],remaining=[],skipped=[];
-  let frontier=-1;
-  RV_ROUTE.forEach((s,i)=>{if(pd[s]?.status)frontier=Math.max(frontier,i);});
-  aps.forEach(p=>{const i=RV_ROUTE.indexOf(p);if(i>frontier)frontier=i;});
-  const selSet=new Set((r.process||'').split(',').map(s=>s.trim()).filter(s=>RV_ROUTE.includes(s)));
-  RV_ROUTE.forEach((s,i)=>{
-    const pst=pd[s]?.status;
-    if(pst==='skip') skipped.push(s);
-    else if(pst==='done'){ /* ผ่านแล้ว ไม่แสดง */ }
-    else if(pst==='wait') {} // รองาน — ไม่แสดงใน pending chips
-    else if(pst==='wip'||(aps.includes(s)&&!pst)) active.push(s);
-    else if(selSet.has(s)&&i>frontier) remaining.push(s);
-  });
-  const ac=active.map(s=>`<span class="rv-pch rv-pc-now" style="background:${rvCol(s)}1e;color:${rvCol(s)};border-color:${rvCol(s)}44">${s}</span>`).join('');
-  const rc=remaining.map(s=>`<span class="rv-pch rv-pch-r">${s}</span>`).join('');
-  const sc=skipped.map(s=>`<span class="rv-pch rv-pch-s">${s}</span>`).join('');
-  if(!active.length&&!remaining.length&&!skipped.length) return '';
-  return`<div class="rv-prog">
-    ${active.length?`<span class="rv-plbl">📍</span>${ac}`:''}
-    ${remaining.length?`<span class="rv-plbl" style="margin-left:${active.length?.28:0}rem">⏳</span>${rc}`:''}
-    ${skipped.length?`<span class="rv-plbl" style="margin-left:.28rem">⊘</span>${sc}`:''}
-  </div>`;
-}
-
-// ── main render ────────────────────────────────────────
-function renderRouteView(){
-  const el=document.getElementById('routeViewContent');
-  if(!el) return;
-  if(!rows||!rows.length){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">ยังไม่มีข้อมูล — กด Refresh ก่อนครับ</div></div>';
-    return;
-  }
-
-  // filter
-  let data=[...rows];
-  if(rvFS==='overdue') data=data.filter(r=>rvIsOD(r));
-  else if(rvFS)        data=data.filter(r=>r.status===rvFS);
-  if(rvStation)        data=data.filter(r=>(r.process||'').includes(rvStation));
-  if(rvSrch){
-    const q=rvSrch;
-    data=data.filter(r=>
-      (r.name||'').toLowerCase().includes(q)||
-      (r.num||'').includes(q)||
-      (r.persons||'').toLowerCase().includes(q)||
-      (r.order||'').includes(q)
-    );
-  }
-
-  // status filter chips
-  const statuses=[
-    {v:'',l:'ทั้งหมด'},{v:'กำลังดำเนินการ',l:'🟡 กำลังทำ'},
-    {v:'ส่งครบ',l:'🟢 ส่งครบ'},{v:'ส่งไม่ได้',l:'🔴 ส่งไม่ได้'},
-    {v:'แบ่งส่ง',l:'🟠 แบ่งส่ง'},{v:'HOLD',l:'🟣 HOLD'},
-    {v:'overdue',l:'⚠ เกิน',oc:true},
-  ];
-  const sChips=statuses.map(c=>`<button class="rv-chip${c.oc?' oc':''}${rvFS===c.v?' on':''}"
-    onclick="rvFS='${c.v}';renderRouteView()">${c.l}</button>`).join('');
-
-  // station chips (only routes in PROCESS_DATA)
-  const stChips=RV_ROUTE.map(s=>{
-    const col=rvCol(s);const on=rvStation===s;
-    return`<button class="rv-chip${on?' on':''}"
-      style="${on?`background:${col};border-color:${col};color:${rvCT(col)}`:
-                  `border-color:${col}44;color:${col}`}"
-      onclick="rvStation=rvStation==='${s}'?null:'${s}';renderRouteView()">${s}</button>`;
-  }).join('');
-
-  // group by date
-  const today=rvToday();
-  const grps={};
-  data.forEach(r=>(grps[r.date||'ไม่ระบุ']||(grps[r.date||'ไม่ระบุ']=[])).push(r));
-
-  const cardHtml=Object.keys(grps).sort().map(dk=>{
-    const jobs=grps[dk];const isT=dk===today;
-    const cards=jobs.map((r,ci)=>{
-      const rk=rvKey(r);const od=rvIsOD(r);const sc=rvSCls(r.status);
-      const persons=(r.persons||'').split(',').map(s=>s.trim()).filter(Boolean);
-      const pchips=persons.map(p=>{
-        const c=PERSON_COLORS[p]||'#64748b';
-        return`<span class="rv-pch2" style="background:${c}22;color:${c};border-color:${c}44">คุณ${p}</span>`;
-      }).join('');
-      return`<div class="rv-card${od?' ov':''}" style="animation-delay:${ci*.038}s"
-          onclick="rvOpenModal('${rk}',null)">
-        <div class="rv-top">
-          <span class="rv-num">#${r.num||''}</span>
-          <span class="rv-name">${r.name||''}</span>
-          <span class="rv-ord">${r.order?Number((r.order+'').replace(/,/g,'')).toLocaleString():'—'} ชิ้น</span>
-          ${r.time?`<span class="rv-tm">🕐 <span style="${od?'color:var(--red);font-weight:700':''}">${r.time}</span></span>`:''}
-          ${od?'<span class="rv-od">⚠ เกิน</span>':''}
-          <div class="rv-rgt"><span class="rv-stat ${sc}">${r.status||''}</span></div>
-        </div>
-        ${rvTrack(r)}
-        ${rvProg(r)}
-        <div class="rv-bot">
-          <div style="display:flex;gap:.15rem;flex-wrap:wrap">${pchips}</div>
-          ${r.detail?`<div class="rv-det">💬 ${r.detail}</div>`:''}
-        </div>
-      </div>`;
-    }).join('');
-    return`<div class="rv-dg">
-      <div class="rv-dg-head">
-        <span class="rv-dg-dt">📅 ${rvFmtDate(dk)}${isT?'<span class="rv-today">TODAY</span>':''}</span>
-        <div class="rv-dg-line"></div>
-        <span class="rv-dg-n">${jobs.length} งาน</span>
-      </div>${cards}</div>`;
-  }).join('');
-
-  el.innerHTML=`
-    <div class="rv-bar">
-      <span class="rv-lbl">สถานะ</span>${sChips}
-      <div class="rv-sep"></div>
-      <span class="rv-lbl">Station</span>${stChips}
-      <div class="rv-sep"></div>
-      <input class="rv-srch" placeholder="🔍 ค้นหา..." value="${rvSrch}"
-        oninput="rvSrch=this.value.toLowerCase();renderRouteView()"/>
-    </div>
-    ${cardHtml||'<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">ไม่มีงานที่ตรงเงื่อนไข</div></div>'}`;
-}
-
-// ── process modal ──────────────────────────────────────
-let rvEKey=null,rvEProc=null,rvEPS=null;
-
-function rvOpenModal(rowKey, procId){
-  const r=rows.find(x=>rvKey(x)===rowKey);
-  if(!r) return;
-  rvEKey=rowKey;
-  const aps=rvActive(r);
-  rvEProc=procId||(aps[0]||RV_ROUTE[0]);
-  const cur=rvGetPD(rowKey)[rvEProc]||{};
-  rvEPS=cur.status||null;
-  _rvBuildModal(r);
-}
-
-function rvSwitchProc(rk,p){rvEProc=p;const r=rows.find(x=>rvKey(x)===rk);if(r)_rvBuildModal(r);}
-
-function _rvBuildModal(r){
-  const rk=rvEKey;const pd=rvGetPD(rk);const cur=pd[rvEProc]||{};
-  const col=rvCol(rvEProc);const tc=rvCT(col);
-  const aps=rvActive(r);
-
-  // process selector tabs
-  const tabs=aps.length>1?`<div class="rv-proc-tabs">${aps.map(p=>{
-    const c=rvCol(p);const on=p===rvEProc;
-    return`<button class="rv-chip${on?' on':''}"
-      style="${on?`background:${c};border-color:${c};color:${rvCT(c)}`:''}"
-      onclick="rvEPS=null;rvSwitchProc('${rk}','${p}')">${p}</button>`;
-  }).join('')}</div>`:'';
-
-  const html=`<div class="rv-ov open" id="rvMOV" onclick="if(event.target===this)rvClose()">
-    <div class="rv-modal">
-      <div class="rv-mhd">
-        <div class="rv-mttl">
-          <span style="width:28px;height:28px;min-width:28px;border-radius:50%;background:${col};color:${tc};display:inline-flex;align-items:center;justify-content:center;font-size:.53rem;font-weight:800">${rvEProc}</span>
-          <span style="font-size:.82rem">${r.name} — ${rvEProc}</span>
-        </div>
-        <button class="rv-mcls" onclick="rvClose()">✕</button>
-      </div>
-      ${tabs}
-      <div class="rv-mbdy">
-        <div class="rv-mfld">
-          <label class="rv-mlbl">สถานะ Process นี้</label>
-          <div class="rv-sbrow">
-            <button class="rv-sb${rvEPS==='wip'?' on':''}" style="background:rgba(202,138,4,.12);border-color:#ca8a04;color:#eab308"
-              onclick="rvEPS=rvEPS==='wip'?null:'wip';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">🟡 กำลังผลิต</button>
-            <button class="rv-sb${rvEPS==='done'?' on':''}" style="background:rgba(22,163,74,.1);border-color:#16a34a;color:#22c55e"
-              onclick="rvEPS=rvEPS==='done'?null:'done';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">🟢 เสร็จแล้ว</button>
-            <button class="rv-sb${rvEPS==='skip'?' on':''}" style="background:rgba(100,116,139,.1);border-color:#475569;color:#64748b"
-              onclick="rvEPS=rvEPS==='skip'?null:'skip';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">⊘ ข้าม</button>
-            <button class="rv-sb${rvEPS==='wait'?' on':''}" style="background:transparent;border-color:#94a3b8;color:#94a3b8"
-              onclick="rvEPS=rvEPS==='wait'?null:'wait';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">⏸ รองาน</button>
-          </div>
-        </div>
-        <div class="rv-mfld">
-          <label class="rv-mlbl">เวลานัด</label>
-          <input type="time" class="rv-minp" id="rvMT" value="${cur.time||''}"/>
-        </div>
-        <div class="rv-mfld">
-          <label class="rv-mlbl">Comment</label>
-          <textarea class="rv-mta" id="rvMC">${cur.comment||''}</textarea>
-        </div>
-      </div>
-      <div class="rv-mft">
-        <button class="rv-btn rv-btn-s" onclick="rvClose()">ยกเลิก</button>
-        <button class="rv-btn rv-btn-p" onclick="rvSave()">💾 บันทึก</button>
-      </div>
-    </div>
-  </div>`;
-
-  const old=document.getElementById('rvMOV');
-  if(old)old.remove();
-  document.body.insertAdjacentHTML('beforeend',html);
-}
-
-async function rvSave(){
-  if(!rvEKey)return;
-  const nd={status:rvEPS,time:document.getElementById('rvMT').value,comment:document.getElementById('rvMC').value.trim()};
-  rvGetPD(rvEKey)[rvEProc]=nd;
-  rvClose();
-  renderRouteView();
-  // sync to Sheet
-  const r=rows.find(x=>rvKey(x)===rvEKey);
-  if(!r)return;
-  try{
-    await fetch(SCRIPT_URL,{
-      method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'upsertProcess',job_id:r.num+'-'+r.name,
-        process:rvEProc,data:{proc_status:nd.status||'',proc_time:nd.time||'',comment:nd.comment||''},
-        user:'operator'})
-    });
-  }catch(e){}
-}
-
-function rvClose(){
-  const m=document.getElementById('rvMOV');if(m)m.remove();
-  rvEKey=null;rvEProc=null;rvEPS=null;
-}
 
 </script>
 </body>
