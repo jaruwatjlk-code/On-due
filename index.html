@@ -1889,7 +1889,7 @@ function isLight(){ return currentTheme==='light'; }
 
 // chipStates: rowKey → { procId: 'wip'|'wait'|'done'|null }
 const chipStates = {};
-function csKey(r){ return (r.num||'')+'-'+(r.name||''); }
+function csKey(r){ return (r.name||''); }
 function getCS(r){ return chipStates[csKey(r)] || (chipStates[csKey(r)]={}); }
 
 function cycleChip(rowIdx, procId, event){
