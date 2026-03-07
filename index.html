@@ -1318,7 +1318,7 @@ function openRowDetail(i, e) {
   document.getElementById('rd-date').textContent = fmtDMY(r.date)||'—';
   document.getElementById('rd-time').textContent = r.time||'—';
   document.getElementById('rd-status').innerHTML = r.status ? `<span class="sbadge ${cls}">${esc(lbl)}</span>` : '—';
-  document.getElementById('rd-process').innerHTML = renderProcessChips(r.process);
+  document.getElementById('rd-process').innerHTML = renderProcessChips(r.process, i);
   document.getElementById('rd-persons').innerHTML = renderPersonChips(r.persons);
   document.getElementById('rd-detail').textContent = r.detail||'—';
 
@@ -1327,11 +1327,31 @@ function openRowDetail(i, e) {
 
   if (role === 'admin') {
     sec.style.display = 'block';
-    sec.innerHTML = `<div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.8rem;border-top:1px solid var(--border)">
-      <button class="btn btn-secondary btn-sm" onclick="closeModal('rowDetailModal');openEdit(${i})">✏ แก้ไข</button>
-      <button class="btn btn-danger btn-sm" onclick="closeModal('rowDetailModal');delRow(${i})">🗑 ลบ</button>
+    const procIdsA = (r.process||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const csA = getCS(r);
+    const procRowsA = procIdsA.map(pid => {
+      const pd = PROCESS_DATA.find(p=>p.id===pid);
+      const col = pd ? pd.color : '#64748b';
+      const bg  = pd ? pd.bg : 'rgba(100,116,139,.15)';
+      const cur = csA[pid]||'';
+      return `<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem">
+        <span style="min-width:36px;padding:.12rem .42rem;border-radius:5px;font-size:.7rem;font-weight:800;background:${bg};color:${col}">${pid}</span>
+        <select class="fselect rd-proc-sel" data-proc="${pid}" onchange="styleSel(this)" style="flex:1;font-size:.8rem;padding:.35rem .6rem">
+          <option value="">— สถานะ —</option>
+          <option value="wip" ${cur==='wip'?'selected':''}>🟡 กำลังทำ</option>
+          <option value="wait" ${cur==='wait'?'selected':''}>⏸ รองาน</option>
+          <option value="done" ${cur==='done'?'selected':''}>✅ เสร็จ</option>
+        </select>
+      </div>`;
+    }).join('');
+    sec.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
+      ${procIdsA.length ? `<div class="fg"><label class="flbl">สถานะ Process</label>${procRowsA}</div>` : ''}
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.6rem">
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('rowDetailModal');openEdit(${i})">✏ แก้ไข</button>
+        <button class="btn btn-danger btn-sm" onclick="closeModal('rowDetailModal');delRow(${i})">🗑 ลบ</button>
+      </div>
     </div>`;
-    saveBtn.style.display = 'none';
+    saveBtn.style.display = procIdsA.length ? 'inline-flex' : 'none';
   } else if (locked) {
     sec.style.display = 'block';
     sec.innerHTML = `<div style="text-align:center;padding:.75rem;color:var(--text3);font-size:.8rem">🔒 ไม่สามารถแก้ไขข้อมูลย้อนหลังเกิน 3 วัน</div>`;
@@ -1386,9 +1406,9 @@ function openRowDetail(i, e) {
 async function saveRowDetail() {
   const selEl = document.getElementById('rd-status-sel');
   const detEl = document.getElementById('rd-detail-input');
-  if (!selEl) return;
-  const status = selEl.value;
-  if (!status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
+  // admin ไม่มี rd-status-sel — แค่บันทึก process states
+  const status = selEl ? selEl.value : rows[rdIdx].status;
+  if (selEl && !status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
   const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
   // อ่าน process states จาก dropdowns แล้วบันทึกลง chipStates
   const r = rows[rdIdx];
