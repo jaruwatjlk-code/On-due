@@ -299,13 +299,16 @@ input[type="time"].finput,input[type="date"].finput{color-scheme:dark}
 .free-group-title{font-size:.7rem;font-weight:700;color:var(--text3);padding:.5rem .7rem .2rem;background:var(--surface2)}
 
 /* TABLE display chips */
-.pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px;cursor:pointer;user-select:none;transition:opacity .18s,box-shadow .18s;position:relative}
+.pchip{display:inline-flex;align-items:center;padding:.15rem .45rem;border-radius:5px;font-size:.69rem;font-weight:800;margin:1px;cursor:pointer;user-select:none;transition:opacity .18s,box-shadow .18s;position:relative;overflow:visible}
 /* chip states */
-.pchip.cs-wip{opacity:1;box-shadow:0 0 0 2.5px currentColor,0 0 10px currentColor44}
-.pchip.cs-wip::after{content:'';position:absolute;inset:-3px;border-radius:7px;border:2px solid currentColor;animation:chip-pulse 1.6s ease-out infinite;pointer-events:none}
-.pchip.cs-wait{opacity:.5;box-shadow:0 0 0 1.5px currentColor}
-.pchip.cs-done{opacity:.45}
-@keyframes chip-pulse{0%{transform:scale(1);opacity:.7}65%{transform:scale(1.35);opacity:0}100%{transform:scale(1.35);opacity:0}}
+.pchip.cs-wip{opacity:1}
+.pchip.cs-wip::before{content:'';position:absolute;inset:-4px;border-radius:8px;border:2px solid currentColor;animation:chip-pulse 1.5s ease-out infinite;pointer-events:none;z-index:1}
+.pchip.cs-wait{opacity:.5;outline:1.5px solid currentColor;outline-offset:1px}
+.pchip.cs-done-hidden{opacity:0;pointer-events:none;width:0;padding:0;margin:0;overflow:hidden}
+/* · dot for done */
+.pchip-dot{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;font-size:.75rem;line-height:1;cursor:pointer;opacity:.28;margin:1px;transition:opacity .15s;user-select:none;vertical-align:middle}
+.pchip-dot:hover{opacity:.55}
+@keyframes chip-pulse{0%{opacity:.8;transform:scale(1)}70%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
 .uchip{display:inline-flex;align-items:center;padding:.14rem .42rem;border-radius:20px;font-size:.69rem;font-weight:700;margin:1px;border:1.5px solid}
 /* light theme: override inline colors to solid bg + white text */
 /* light theme chip colors handled entirely by JS (renderProcessChips / renderPersonChips) */
@@ -755,7 +758,6 @@ const PROCESS_DATA = [
   { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
   { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
   { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
-  { id:'GP',    color:'#bf5220', bg:'rgba(191,82,32,.15)',   persons:['น้อง','มด'] },
   { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
   { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
 ];
@@ -1319,8 +1321,30 @@ function openRowDetail(i, e) {
   } else {
     // ผู้ใช้งาน แก้ไขสถานะ+รายละเอียดได้
     sec.style.display = 'block';
+    // process dropdowns
+    const procIds = (r.process||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const cs = getCS(r);
+    const procRows = procIds.map(pid => {
+      const pd = PROCESS_DATA.find(p=>p.id===pid);
+      const col = pd ? pd.color : '#64748b';
+      const bg  = pd ? pd.bg : 'rgba(100,116,139,.15)';
+      const cur = cs[pid]||'';
+      return `<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem">
+        <span style="min-width:36px;padding:.12rem .42rem;border-radius:5px;font-size:.7rem;font-weight:800;background:${bg};color:${col}">${pid}</span>
+        <select class="fselect rd-proc-sel" data-proc="${pid}" onchange="styleSel(this)" style="flex:1;font-size:.8rem;padding:.35rem .6rem">
+          <option value="">— สถานะ —</option>
+          <option value="wip" ${cur==='wip'?'selected':''}>🟡 กำลังทำ</option>
+          <option value="wait" ${cur==='wait'?'selected':''}>⏸ รองาน</option>
+          <option value="done" ${cur==='done'?'selected':''}>✅ เสร็จ</option>
+        </select>
+      </div>`;
+    }).join('');
     sec.innerHTML = `<div style="border-top:1px solid var(--border);padding-top:.9rem;margin-top:.2rem">
-      <div class="fg"><label class="flbl">สถานะ</label>
+      ${procIds.length ? `<div class="fg">
+        <label class="flbl">สถานะ Process</label>
+        ${procRows}
+      </div>` : ''}
+      <div class="fg"><label class="flbl">สถานะงาน</label>
         <select class="fselect" id="rd-status-sel" onchange="styleSel(this)">
           <option value="">— เลือกสถานะ —</option>
           <option value="ส่งครบ">ส่งครบ</option>
@@ -1348,10 +1372,22 @@ async function saveRowDetail() {
   const status = selEl.value;
   if (!status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
   const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
+  // อ่าน process states จาก dropdowns
+  const r = rows[rdIdx];
+  const cs = getCS(r);
+  document.querySelectorAll('.rd-proc-sel').forEach(sel => {
+    const pid = sel.dataset.proc;
+    if(pid) {
+      const val = sel.value||null;
+      if(val) cs[pid] = val; else delete cs[pid];
+    }
+  });
   rows[rdIdx].status = status; rows[rdIdx].detail = detail;
   closeModal('rowDetailModal'); render(); stats();
-  toast('✅ อัปเดตสถานะแล้ว','success');
-  pushSheet('update', rows[rdIdx], rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
+  toast('✅ อัปเดตแล้ว','success');
+  // push ครั้งเดียวรวม status + process states
+  const procStates = Object.entries(cs).map(([pid,st])=>({pid,st}));
+  pushSheet('update', {...rows[rdIdx], procStates}, rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
 }
 function reqAdmin(){
   document.getElementById('pwInput').value='';
@@ -1807,18 +1843,12 @@ function cycleChip(rowIdx, procId, event){
   const r = rows[rowIdx]; if(!r) return;
   const cs = getCS(r);
   const cur = cs[procId]||null;
-  // cycle: null → wip → wait → done → null
-  const next = cur===null?'wip':cur==='wip'?'wait':cur==='wait'?'done':null;
-  cs[procId] = next;
-  // re-render just the chips cell
+  // กด chip ในตาราง: ถ้า done → reset เท่านั้น, ถ้าอื่นๆ → ไม่เปลี่ยน (ตั้งได้ผ่าน modal)
+  if(cur !== 'done') return;
+  cs[procId] = null;
   const cell = event.currentTarget.closest('.chips-wrap');
   if(cell) cell.outerHTML = renderProcessChips(r.process, rowIdx);
-  else render(); // fallback
-  // sync to sheet
-  fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'upsertProcess',job_id:r.num+'-'+r.name,
-      process:procId,data:{proc_status:next||''}, user:'operator'})
-  }).catch(()=>{});
+  else render();
 }
 
 function renderProcessChips(processStr, rowIdx) {
@@ -1828,20 +1858,25 @@ function renderProcessChips(processStr, rowIdx) {
   const light = isLight();
   const r = typeof rowIdx==='number' ? rows[rowIdx] : null;
   const cs = r ? getCS(r) : {};
-  return '<div class="chips-wrap">' + ids.map(id => {
+  const chips = ids.map(id => {
     const pd  = PROCESS_DATA.find(p=>p.id===id);
     const col = pd ? pd.color : '#64748b';
     const bg  = light ? col : (pd ? pd.bg : 'var(--surface2)');
     const txt = light ? contrastText(col) : col;
     const st  = cs[id]||null;
-    const stCls = st ? ' cs-'+st : '';
-    const titleMap = {wip:'🟡 กำลังทำ',wait:'⏸ รองาน',done:'✅ เสร็จ'};
-    const tip = titleMap[st]||'คลิกเพื่อตั้งสถานะ';
     const clickAttr = typeof rowIdx==='number'
-      ? `onclick="cycleChip(${rowIdx},'${id}',event)" title="${tip}"`
+      ? `onclick="cycleChip(${rowIdx},'${id}',event)"`
       : '';
-    return `<span class="pchip${stCls}" style="background:${bg};color:${txt};${stCls?'':'opacity:.85'}" ${clickAttr}>${esc(id)}</span>`;
-  }).join('') + '</div>';
+    if (st === 'done') {
+      // เสร็จแล้ว → แสดงเป็น · จางๆ กดได้เพื่อ reset
+      return `<span class="pchip-dot" style="color:${col};background:${col}22" ${clickAttr} title="✅ ${id} เสร็จ — กดเพื่อ reset">·</span>`;
+    }
+    const stCls = st ? ' cs-'+st : '';
+    const titleMap = {wip:'🟡 กำลังทำ — กดเพื่อเปลี่ยน',wait:'⏸ รองาน — กดเพื่อเปลี่ยน'};
+    const tip = titleMap[st]||'กดเพื่อตั้งสถานะ';
+    return `<span class="pchip${stCls}" style="background:${bg};color:${txt};${stCls?'':'opacity:.85'}" ${clickAttr} title="${tip}">${esc(id)}</span>`;
+  });
+  return '<div class="chips-wrap">' + chips.join('') + '</div>';
 }
 
 function renderPersonChips(personsStr, maxShow=2) {
