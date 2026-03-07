@@ -1418,7 +1418,8 @@ async function saveRowDetail() {
   const r = rows[rdIdx];
   const cs = getCS(r);
   const procUpdates = [];
-  document.querySelectorAll('.rd-proc-sel').forEach(sel => {
+  const opSec = document.getElementById('rd-op-section');
+  (opSec ? opSec.querySelectorAll('.rd-proc-sel') : []).forEach(sel => {
     const pid = sel.dataset.proc;
     if (!pid) return;
     const val = sel.value || null;
