@@ -1408,24 +1408,26 @@ function openRowDetail(i, e) {
   openModal('rowDetailModal');
 }
 async function saveRowDetail() {
+  // capture ค่าทันทีก่อน DOM เปลี่ยน
   const selEl = document.getElementById('rd-status-sel');
   const detEl = document.getElementById('rd-detail-input');
-  // admin ไม่มี rd-status-sel — แค่บันทึก process states
-  const status = selEl ? selEl.value : rows[rdIdx].status;
-  if (selEl && !status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
-  const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
-  // อ่าน process states จาก dropdowns แล้วบันทึกลง chipStates
+  const opSec = document.getElementById('rd-op-section');
+  const procSels = opSec ? Array.from(opSec.querySelectorAll('.rd-proc-sel')) : [];
+  // snapshot ค่าทั้งหมดก่อน
+  const statusSnap = selEl ? selEl.value : null;
+  const detailSnap = detEl ? detEl.value.trim() : null;
+  const procSnap = procSels.map(sel => ({ pid: sel.dataset.proc, st: sel.value || '' }));
+  console.log('[saveRowDetail] proc dropdowns found:', procSnap.length, procSnap);
+  // validate
+  const status = statusSnap || rows[rdIdx].status;
+  if (selEl && !statusSnap) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
+  const detail = detailSnap !== null ? detailSnap : rows[rdIdx].detail;
   const r = rows[rdIdx];
   const cs = getCS(r);
   const procUpdates = [];
-  const opSec = document.getElementById('rd-op-section');
-  const procSels = opSec ? opSec.querySelectorAll('.rd-proc-sel') : [];
-  console.log('[saveRowDetail] proc dropdowns found:', procSels.length);
-  procSels.forEach(sel => {
-    const pid = sel.dataset.proc;
+  procSnap.forEach(({pid, st}) => {
     if (!pid) return;
-    const val = sel.value || null;
-    console.log('[saveRowDetail]', pid, '=', val);
+    const val = st || null;
     if (val) cs[pid] = val; else delete cs[pid];
     procUpdates.push({ pid, st: val || '' });
   });
