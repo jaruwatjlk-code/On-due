@@ -742,6 +742,7 @@ function toggleTheme() {
 
 // ─── CONFIG ───────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyI2CCGEwxfVrnSjjan8Fnwg-kh44MzYRuVl7oxJFLlsyszBh8d87ME-CvKDEOT8LVtfQ/exec';
+const PROC_URL   = 'https://script.google.com/macros/s/AKfycbx1xq_fCCTvKkJnx3sBI3eWXaJp-B1cjhFumAg0bac0pX5n9GswDZkEMrynkf4ln22Apw/exec';
 
 // กระบวนการหลักและผู้รับผิดชอบ (เรียงตามลำดับที่กำหนด)
 const PROCESS_DATA = [
@@ -889,7 +890,7 @@ async function loadData() {
     // fetch rows + process states พร้อมกัน
     const [res, psRes] = await Promise.all([
       fetchWithTimeout(SCRIPT_URL + '?action=get', 15000),
-      fetchWithTimeout(SCRIPT_URL + '?action=getProcessStates', 15000).catch(()=>null),
+      fetchWithTimeout(PROC_URL + '?action=get', 15000).catch(()=>null),
     ]);
     console.log('[loadData] response status:', res.status);
     const json = await res.json();
@@ -1431,11 +1432,11 @@ async function saveRowDetail() {
   // push process states ลง job_process sheet แยกต่างหาก
   const jobKey = csKey(r);
   procUpdates.forEach(({pid, st}) => {
-    fetch(SCRIPT_URL, {
+    fetch(PROC_URL, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({
-        action: 'upsertProcess',
+        action: 'upsert',
         job_key: jobKey,
         process: pid,
         status: st,
