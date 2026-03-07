@@ -914,7 +914,10 @@ async function loadData() {
       try {
         const psJson = await psRes.json();
         if (Array.isArray(psJson.data)) {
-          psJson.data.forEach(([jobKey, proc, st]) => {
+          psJson.data.forEach(item => {
+            const jobKey = item.job_key || item[0];
+            const proc   = item.process  || item[1];
+            const st     = item.status   || item[2];
             if (!jobKey || !proc) return;
             if (!chipStates[jobKey]) chipStates[jobKey] = {};
             chipStates[jobKey][proc] = st || null;
