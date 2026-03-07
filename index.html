@@ -2047,13 +2047,10 @@ function parseSheetTime(v) {
   // HH:MM อยู่แล้ว
   if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(s)) return s.slice(0,5);
   // ISO timestamp แปลก ๆ เช่น 1899-12-30T03:17:56.000Z
-  if (s.includes('T')) {
-    const d = new Date(s);
-    if (!isNaN(d)) {
-      const h = d.getUTCHours().toString().padStart(2,'0');
-      const m = d.getUTCMinutes().toString().padStart(2,'0');
-      return `${h}:${m}`;
-    }
+  m = s.match(/T(\d{2}):(\d{2})(?::\d{2})?/);
+if (m) {
+  return `${m[1]}:${m[2]}`;
+}
   }
   // decimal fraction (Google Sheets เก็บเวลาเป็น fraction ของวัน)
   if (/^0\.\d+$/.test(s)) {
