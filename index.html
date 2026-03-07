@@ -886,7 +886,11 @@ async function loadData() {
 
   try {
     console.log('[loadData] fetching...');
-    const res  = await fetchWithTimeout(SCRIPT_URL + '?action=get', 15000);
+    // fetch rows + process states พร้อมกัน
+    const [res, psRes] = await Promise.all([
+      fetchWithTimeout(SCRIPT_URL + '?action=get', 15000),
+      fetchWithTimeout(SCRIPT_URL + '?action=getProcessStates', 15000).catch(()=>null),
+    ]);
     console.log('[loadData] response status:', res.status);
     const json = await res.json();
     console.log('[loadData] json keys:', Object.keys(json), 'data length:', json.data?.length);
@@ -903,6 +907,20 @@ async function loadData() {
         persons: (r[8]||'').toString().trim(),
       }));
       console.log('[loadData] rows loaded:', rows.length);
+    }
+    // โหลด process states เข้า chipStates
+    if (psRes) {
+      try {
+        const psJson = await psRes.json();
+        if (Array.isArray(psJson.data)) {
+          psJson.data.forEach(([jobKey, proc, st]) => {
+            if (!jobKey || !proc) return;
+            if (!chipStates[jobKey]) chipStates[jobKey] = {};
+            chipStates[jobKey][proc] = st || null;
+          });
+          console.log('[loadData] process states loaded:', psJson.data.length);
+        }
+      } catch(e) { console.warn('[loadData] process states parse error', e); }
     }
     document.getElementById('lastSync').textContent =
       'ซิงค์ล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
@@ -1372,22 +1390,38 @@ async function saveRowDetail() {
   const status = selEl.value;
   if (!status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
   const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
-  // อ่าน process states จาก dropdowns
+  // อ่าน process states จาก dropdowns แล้วบันทึกลง chipStates
   const r = rows[rdIdx];
   const cs = getCS(r);
+  const procUpdates = [];
   document.querySelectorAll('.rd-proc-sel').forEach(sel => {
     const pid = sel.dataset.proc;
-    if(pid) {
-      const val = sel.value||null;
-      if(val) cs[pid] = val; else delete cs[pid];
-    }
+    if (!pid) return;
+    const val = sel.value || null;
+    if (val) cs[pid] = val; else delete cs[pid];
+    procUpdates.push({ pid, st: val || '' });
   });
-  rows[rdIdx].status = status; rows[rdIdx].detail = detail;
-  closeModal('rowDetailModal'); render(); stats();
-  toast('✅ อัปเดตแล้ว','success');
-  // push ครั้งเดียวรวม status + process states
-  const procStates = Object.entries(cs).map(([pid,st])=>({pid,st}));
-  pushSheet('update', {...rows[rdIdx], procStates}, rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
+  rows[rdIdx].status = status;
+  rows[rdIdx].detail = detail;
+  closeModal('rowDetailModal');
+  render(); stats();
+  toast('✅ อัปเดตแล้ว', 'success');
+  // push status + detail ลง main sheet
+  pushSheet('update', rows[rdIdx], rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
+  // push process states ลง job_process sheet แยกต่างหาก
+  const jobKey = csKey(r);
+  procUpdates.forEach(({pid, st}) => {
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({
+        action: 'upsertProcess',
+        job_key: jobKey,
+        process: pid,
+        status: st,
+      })
+    }).catch(() => {});
+  });
 }
 function reqAdmin(){
   document.getElementById('pwInput').value='';
@@ -1835,7 +1869,7 @@ function isLight(){ return currentTheme==='light'; }
 
 // chipStates: rowKey → { procId: 'wip'|'wait'|'done'|null }
 const chipStates = {};
-function csKey(r){ return (r.num||'')+(r.name||''); }
+function csKey(r){ return (r.num||'')+'-'+(r.name||''); }
 function getCS(r){ return chipStates[csKey(r)] || (chipStates[csKey(r)]={}); }
 
 function cycleChip(rowIdx, procId, event){
