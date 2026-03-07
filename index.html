@@ -538,6 +538,7 @@ tbody tr:active{background:var(--surface2)!important;transform:scale(.995)}
 .rv-node.sk{opacity:.15}   /* skip — จางมาก */
 .rv-node.nr{opacity:.13;filter:grayscale(.6)}  /* ไม่เกี่ยว — จางมากสุด */
 .rv-node.pd{opacity:.22}   /* pending (ยังไม่ถึง) */
+.rv-node.wt{opacity:.9}    /* รองาน — ขอบสี ไม่มี fill */
 
 /* person mini dots */
 .rv-dots{display:flex;gap:.1rem;flex-wrap:wrap;justify-content:center;margin-top:.18rem;max-width:46px;min-height:16px}
@@ -2204,6 +2205,9 @@ function rvTrack(r){
       bg=col; bc=col; fc=rvCT(col); cls+=' act';
       shadow=`0 0 0 3px rgba(255,255,255,.08),0 0 14px ${col}80`;
       arrowOn=true;
+    } else if(pst==='wait'){
+      // ⏸ รองาน — ขอบสีเต็ม ไม่มี fill ไม่ pulse ไม่ลูกศร
+      bg='transparent'; bc=col; fc=col; cls+=' wt';
     } else if(!inSel){
       // ❌ ไม่เกี่ยวกับงานนี้เลย — จางมากสุด
       bg='transparent'; bc=col+'12'; fc=col+'18'; cls+=' nr';
@@ -2264,6 +2268,7 @@ function rvProg(r){
     const pst=pd[s]?.status;
     if(pst==='skip') skipped.push(s);
     else if(pst==='done'){ /* ผ่านแล้ว ไม่แสดง */ }
+    else if(pst==='wait') {} // รองาน — ไม่แสดงใน pending chips
     else if(pst==='wip'||(aps.includes(s)&&!pst)) active.push(s);
     else if(selSet.has(s)&&i>frontier) remaining.push(s);
   });
@@ -2422,6 +2427,8 @@ function _rvBuildModal(r){
               onclick="rvEPS=rvEPS==='done'?null:'done';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">🟢 เสร็จแล้ว</button>
             <button class="rv-sb${rvEPS==='skip'?' on':''}" style="background:rgba(100,116,139,.1);border-color:#475569;color:#64748b"
               onclick="rvEPS=rvEPS==='skip'?null:'skip';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">⊘ ข้าม</button>
+            <button class="rv-sb${rvEPS==='wait'?' on':''}" style="background:transparent;border-color:#94a3b8;color:#94a3b8"
+              onclick="rvEPS=rvEPS==='wait'?null:'wait';document.querySelectorAll('.rv-sb').forEach(b=>b.classList.remove('on'));if(rvEPS)this.classList.add('on')">⏸ รองาน</button>
           </div>
         </div>
         <div class="rv-mfld">
