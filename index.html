@@ -769,42 +769,35 @@ async function pushSheet(action, data, idx) {
 }
 
 // ─── PUSH PROCESS STATE ──────────────────
-// แก้ไขหลัก: ใช้ mode:'no-cors' + Content-Type:'text/plain' ให้ตรงกับ Apps Script
+// ใช้ GET + URL params แทน POST body เพราะ no-cors POST ไม่ส่ง body ถึง Apps Script
 async function pushProcState(jobKey, procId, status) {
   try {
-    await fetch(PROC_URL, {
-      method: 'POST',
-      mode: 'no-cors',                           // ← สำคัญ: ต้องมี
-      headers: { 'Content-Type': 'text/plain' }, // ← simple request ไม่ trigger preflight
-      body: JSON.stringify({
-        action:  'upsert',
-        job_key: jobKey,
-        process: procId,
-        status:  status
-      })
-    });
+    const url = PROC_URL
+      + '?action=upsert'
+      + '&job_key=' + encodeURIComponent(jobKey)
+      + '&process='  + encodeURIComponent(procId)
+      + '&status='   + encodeURIComponent(status);
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
   } catch(e) {
     console.warn('pushProcState error:', e);
   }
 }
 
-// batch version: ส่งหลาย process พร้อมกัน
+// batch version: ส่งทีละ item ผ่าน GET (loop)
 async function pushProcBatch(jobKey, items) {
-  // items = [{process, status}, ...]
   if (!items || items.length === 0) return;
-  try {
-    await fetch(PROC_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action:  'upsert_batch',
-        job_key: jobKey,
-        items:   items
-      })
-    });
-  } catch(e) {
-    console.warn('pushProcBatch error:', e);
+  for (const item of items) {
+    if (!item.process) continue;
+    const url = PROC_URL
+      + '?action=upsert'
+      + '&job_key=' + encodeURIComponent(jobKey)
+      + '&process='  + encodeURIComponent(item.process)
+      + '&status='   + encodeURIComponent(item.status || '');
+    try {
+      await fetch(url, { method: 'GET', mode: 'no-cors' });
+    } catch(e) {
+      console.warn('pushProcBatch item error:', e);
+    }
   }
 }
 
