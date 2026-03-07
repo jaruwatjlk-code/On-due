@@ -823,7 +823,7 @@ window.addEventListener('DOMContentLoaded', () => {
   showSkeleton(); // ขึ้น skeleton ทันทีก่อน async fetch เริ่ม
   requestAnimationFrame(()=>loadData());
   // re-render ทุก 1 นาที เพื่อ update overdue status อัตโนมัติ
-  setInterval(()=>{ if(rows.length>0){ render(); stats(); } }, 60000);
+  window._refreshTimer = setInterval(()=>{ if(rows.length>0 && !document.querySelector('.overlay.open')){ render(); stats(); } }, 60000);
   // คำนวณ sticky offset หลัง DOM render
   setTimeout(updateStickyOffsets, 200);
 });
@@ -1408,43 +1408,49 @@ function openRowDetail(i, e) {
   openModal('rowDetailModal');
 }
 async function saveRowDetail() {
-  // capture ค่าทันทีก่อน DOM เปลี่ยน
-  const selEl = document.getElementById('rd-status-sel');
-  const detEl = document.getElementById('rd-detail-input');
-  const opSec = document.getElementById('rd-op-section');
-  const procSels = opSec ? Array.from(opSec.querySelectorAll('.rd-proc-sel')) : [];
-  // snapshot ค่าทั้งหมดก่อน
-  const statusSnap = selEl ? selEl.value : null;
-  const detailSnap = detEl ? detEl.value.trim() : null;
-  const procSnap = procSels.map(sel => ({ pid: sel.dataset.proc, st: sel.value || '' }));
-  console.log('[saveRowDetail] proc dropdowns found:', procSnap.length, procSnap);
-  // validate
-  const status = statusSnap || rows[rdIdx].status;
-  if (selEl && !statusSnap) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
-  const detail = detailSnap !== null ? detailSnap : rows[rdIdx].detail;
-  const r = rows[rdIdx];
+  // snapshot ทุกค่าก่อน DOM เปลี่ยนแปลง
+  const selEl  = document.getElementById('rd-status-sel');
+  const detEl  = document.getElementById('rd-detail-input');
+  const opSec  = document.getElementById('rd-op-section');
+  const status = selEl ? selEl.value : rows[rdIdx].status;
+  const detail = detEl ? detEl.value.trim() : rows[rdIdx].detail;
+  if (selEl && !status) { toast('⚠ กรุณาเลือกสถานะ','error'); return; }
+
+  // snapshot process dropdowns
+  const procData = [];
+  if (opSec) {
+    opSec.querySelectorAll('.rd-proc-sel').forEach(function(sel) {
+      var pid = sel.getAttribute('data-proc');
+      var st  = sel.value;
+      if (pid) procData.push([pid, st]);
+    });
+  }
+
+  // อัปเดต local state
+  const r  = rows[rdIdx];
   const cs = getCS(r);
-  const procUpdates = [];
-  procSnap.forEach(({pid, st}) => {
-    if (!pid) return;
-    const val = st || null;
-    if (val) cs[pid] = val; else delete cs[pid];
-    procUpdates.push({ pid, st: val || '' });
+  procData.forEach(function(item) {
+    if (item[1]) cs[item[0]] = item[1]; else delete cs[item[0]];
   });
   rows[rdIdx].status = status;
   rows[rdIdx].detail = detail;
+
+  // ปิด modal และ re-render
   closeModal('rowDetailModal');
   render(); stats();
   toast('✅ อัปเดตแล้ว', 'success');
-  pushSheet('update', rows[rdIdx], rdIdx).catch(()=>toast('⚠ Sync ไม่สำเร็จ','error'));
-  const jobKey = csKey(r);
-  console.log('[saveRowDetail] pushing', procUpdates.length, 'updates, jobKey:', jobKey);
-  procUpdates.forEach(({pid, st}) => {
+
+  // push ไป GS
+  var jobKey = csKey(r);
+  pushSheet('update', rows[rdIdx], rdIdx).catch(function() { toast('⚠ Sync ไม่สำเร็จ','error'); });
+  procData.forEach(function(item) {
+    var pid = item[0];
+    var st  = item[1];
     fetch(PROC_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'upsert', job_key: jobKey, process: pid, status: st })
-    }).then(r=>r.json()).then(d=>console.log('[upsert]', pid, d)).catch(e=>console.error('[upsert]', pid, e));
+    }).catch(function() {});
   });
 }
 function reqAdmin(){
