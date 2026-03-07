@@ -891,6 +891,7 @@ const PROCESS_DATA = [
   { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
   { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
   { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
+  { id:'GP',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] }, 
   { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
   { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
 ];
@@ -2096,14 +2097,14 @@ function toast(msg,type='success'){
 // ══════════════════════════════════════════════════════
 //  ROUTE VIEW — v2
 // ══════════════════════════════════════════════════════
-const RV_ROUTE = ['PR','SP','CA','LA','DC','ST','CK','SG','MGL','GL'];
+const RV_ROUTE = ['PR','SP','CA','LA','DC','ST','CK','SG','MGL','GP,'GL'];
 
 // map process id → color (จาก PROCESS_DATA ถ้ามี ไม่งั้น fallback)
 function rvCol(pid){
   const pd = PROCESS_DATA.find(p=>p.id===pid);
   if(pd) return pd.color;
   return {PR:'#f97316',SP:'#a855f7',CA:'#10b981',LA:'#22d3ee',DC:'#3b82f6',
-          ST:'#6366f1',CK:'#ec4899',SG:'#06b6d4',MGL:'#f43f5e',GL:'#ef4444'}[pid]||'#64748b';
+          ST:'#6366f1',CK:'#ec4899',SG:'#06b6d4',MGL:'#f43f5e',GP:'#f43f5e',GL:'#ef4444'}[pid]||'#64748b';
 }
 
 // contrast text color
