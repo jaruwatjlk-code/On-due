@@ -743,21 +743,21 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx61n5MDBARadvY-whp8
 // กระบวนการหลักและผู้รับผิดชอบ (เรียงตามลำดับที่กำหนด)
 const PROCESS_DATA = [
   { id:'ALL',    color:'#64748b', bg:'rgba(100,116,139,.15)', persons:[] },
-  { id:'PR',     color:'#f97316', bg:'rgba(249,115,22,.15)',  persons:['คุณอุทัย','คุณตั้ม','คุณอิ','คุณยู','คุณตุ๊ก','คุณณรงค์','คุณสุริยา'] },
-  { id:'SP',     color:'#a855f7', bg:'rgba(168,85,247,.15)',  persons:['คุณลลิตา','คุณนัท','คุณจ๊ะจ๋า'] },
-  { id:'CA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['คุณปรีชา','คุณศักดิ์ศรี'] },
-  { id:'LA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['คุณปรีชา','คุณศักดิ์ศรี'] },
-  { id:'HS',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['คุณถาวร','คุณทองตัน','คุณบุญฑิน'] },
-  { id:'DC',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['คุณถาวร','คุณทองตัน','คุณบุญฑิน'] },
-  { id:'ST',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['คุณถาวร','คุณทองตัน','คุณบุญฑิน'] },
-  { id:'SG',     color:'#06b6d4', bg:'rgba(6,182,212,.15)',   persons:['คุณแพรวา','คุณโยเซฟ','คุณกบ'] },
-  { id:'DOME',   color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['คุณดวง','คุณออฟ'] },
-  { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['คุณดวง','คุณออฟ'] },
-  { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['คุณวิโรจน์','คุณแซม','คุณแฟบ'] },
-  { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['คุณน้อง','คุณมด'] },
-  { id:'GP',    color:'#bf5220', bg:'rgba(191,82,32,.15)',   persons:['คุณน้อง','คุณมด'] },
-  { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['คุณทราย','คุณปัญญา','คุณแมน'] },
-  { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['คุณศรีประไพร'] },
+  { id:'PR',     color:'#f97316', bg:'rgba(249,115,22,.15)',  persons:['อุทัย','ตั้ม','อิ','ยู','ตุ๊ก','ณรงค์','สุริยา'] },
+  { id:'SP',     color:'#a855f7', bg:'rgba(168,85,247,.15)',  persons:['ลลิตา','นัท','จ๊ะจ๋า'] },
+  { id:'CA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'LA',     color:'#10b981', bg:'rgba(16,185,129,.15)',  persons:['ปรีชา','ศักดิ์ศรี'] },
+  { id:'HS',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'DC',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'ST',     color:'#3b82f6', bg:'rgba(59,130,246,.15)',  persons:['ถาวร','ทองตัน','บุญฑิน'] },
+  { id:'SG',     color:'#06b6d4', bg:'rgba(6,182,212,.15)',   persons:['แพรวา','โยเซฟ','กบ'] },
+  { id:'DOME',   color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'F3',     color:'#8b5cf6', bg:'rgba(139,92,246,.15)',  persons:['ดวง','ออฟ'] },
+  { id:'GL',     color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['วิโรจน์','แซม','แฟบ'] },
+  { id:'MGL',    color:'#f43f5e', bg:'rgba(244,63,94,.15)',   persons:['น้อง','มด'] },
+  { id:'GP',    color:'#bf5220', bg:'rgba(191,82,32,.15)',   persons:['น้อง','มด'] },
+  { id:'PN',     color:'#0ea5e9', bg:'rgba(14,165,233,.15)',  persons:['ทราย','ปัญญา','แมน'] },
+  { id:'Replan', color:'#eab308', bg:'rgba(234,179,8,.15)',   persons:['ศรีประไพร'] },
 ];
 
 // สีแต่ละคน — กำหนดตายตัวให้แต่ละคนมีสีเฉพาะตัว
@@ -775,9 +775,9 @@ const PERSON_COLORS = (() => {
   const allPersons = [
     ...new Set([
       ...PROCESS_DATA.flatMap(p=>p.persons),
-      'คุณAom','คุณอ้อ','คุณหงส์','คุณNancy','คุณNannie','คุณหมิว','คุณTui',
-      'คุณกาน','คุณปุ๊กกี้','คุณฟงหวิน','คุณเอ',
-      'คุณฉัตชัย','คุณธานี','คุณประกอบ','คุณเมธี','คุณจรัญ','คุณพงศกร','คุณยุ้ย',
+      'Aom','อ้อ','หงส์','Nancy','Nannie','หมิว','Tui',
+      'กาน','ปุ๊กกี้','ฟงหวิน','เอ',
+      'ฉัตชัย','ธานี','ประกอบ','เมธี','จรัญ','พงศกร','ยุ้ย',
     ])
   ];
   const map = {};
@@ -787,9 +787,9 @@ const PERSON_COLORS = (() => {
 
 // กลุ่มคนฟรี (เพิ่มได้ทุก process)
 const FREE_GROUPS = [
-  { name:'บริการลูกค้า', persons:['คุณAom','คุณอ้อ','คุณหงส์','คุณNancy','คุณNannie','คุณหมิว','คุณTui'] },
-  { name:'จัดส่ง',       persons:['คุณกาน','คุณปุ๊กกี้','คุณฟงหวิน','คุณเอ'] },
-  { name:'พิเศษ',        persons:['คุณฉัตชัย','คุณธานี','คุณประกอบ','คุณเมธี','คุณจรัญ','คุณพงศกร','คุณยุ้ย'] },
+  { name:'บริการลูกค้า', persons:['Aom','อ้อ','หงส์','Nancy','Nannie','หมิว','Tui'] },
+  { name:'จัดส่ง',       persons:['กาน','ปุ๊กกี้','ฟงหวิน','เอ'] },
+  { name:'พิเศษ',        persons:['ฉัตชัย','ธานี','ประกอบ','เมธี','จรัญ','พงศกร','ยุ้ย'] },
 ];
 
 // picker state
@@ -1858,7 +1858,7 @@ function renderPersonChips(personsStr, maxShow=2) {
     const txt    = light ? contrastText(col) : col;
     const hidden = i >= maxShow;
     chips += `<span class="uchip${hidden?' uchip-extra_'+uid:''}"
-      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${n==='ALL'?'ALL':'คุณ'+esc(n)}</span>`;
+      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${n==='ALL'?'ALL':''+esc(n)}</span>`;
   });
   const rest = names.length - maxShow;
   const moreBtn = rest > 0
