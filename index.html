@@ -1858,7 +1858,7 @@ function renderPersonChips(personsStr, maxShow=2) {
     const txt    = light ? contrastText(col) : col;
     const hidden = i >= maxShow;
     chips += `<span class="uchip${hidden?' uchip-extra_'+uid:''}"
-      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${n==='ALL'?'ALL':''+esc(n)}</span>`;
+      style="background:${bg};border-color:${border};color:${txt};font-weight:700;${hidden?'display:none':''}">${n==='ALL'?'ALL':'คุณ'+esc(n)}</span>`;
   });
   const rest = names.length - maxShow;
   const moreBtn = rest > 0
